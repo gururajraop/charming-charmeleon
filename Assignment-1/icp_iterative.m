@@ -1,10 +1,10 @@
-function [] = icp()
+function [] = icp_iterative()
    % Retrieve all pcd files and separate point clouds and normals.
-    directory = 'Data\data\'
+    directory = 'Data\data\';
     
     point_clouds = dir(strcat(directory, '\', '\*.pcd'));
     normals_indices = contains({point_clouds.name}, 'normal.pcd');
-    normals = point_clouds(normals_indices)
+    normals = point_clouds(normals_indices);
     point_clouds(normals_indices) = [];
     
     % Initialize a merged cloud outside of loop using the first .pcd.
@@ -15,8 +15,10 @@ function [] = icp()
     % Find camera poses for each pair and merge transformed clouds.
 %     for i = 1:length(point_clouds)    
     for i = 1:1
-        A1 = readPcd(point_clouds(i).name); 
-        A2 = readPcd(point_clouds(i + 1).name);
+        first = strcat(directory, point_clouds(i).name);
+        second = strcat(directory, point_clouds(i + 1).name);
+        A1 = readPcd(first);
+        A2 = readPcd(second);
         
         % Remove background points with distance > 2 to the camera.
         A1(A1(:,3)>2, :) = [];
@@ -26,16 +28,15 @@ function [] = icp()
         A1 = A1(:, 1:3);
         A2 = A2(:, 1:3);
         
-        % Find camera movement from A2 to A1 (I feel like that makes more
-        % sense)
+        % Find camera movement from A2 to A1
         [R, T] = run_icp(A2, A1);
         
         % Unsure of shape of R, so this probably does not work.
-        transformed_A2 = A2 * R + T
+        transformed_A2 = A2 * R + T;
         
         % Would result in a 99 x 60k cloud, with many points close to or in
         % the same location?
-        merged_pc = [merged_pc; transformed_A2]
+        merged_pc = [merged_pc; transformed_A2];
     end
     
     % Visualize results.
