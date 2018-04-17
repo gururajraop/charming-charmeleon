@@ -8,9 +8,9 @@ function [] = icp_iterative()
     point_clouds(normals_indices) = [];
     
     % Initialize a merged cloud outside of loop using the first .pcd.
-    merged_pc = readPcd ("Data/data/0000000000.pcd ")';
-    merged_pc(:, merged_pc(3, :)>2) = [];
-    merged_pc = merged_pc(1:3, :);
+%     merged_pc = readPcd ("Data/data/0000000000.pcd ")';
+%     merged_pc(:, merged_pc(3, :)>2) = [];
+%     merged_pc = merged_pc(1:3, :);
     
     % Find camera poses for each pair and merge transformed clouds.
 %     for i = 1:length(point_clouds)    
@@ -30,7 +30,7 @@ function [] = icp_iterative()
         
         % Find camera movement from A2 to A1
         tic
-        [R, T] = run_icp(A2, A1, 0.00001);
+        [R, T] = run_icp(A2, A1, 0.001);
         toc
         
         % Unsure of shape of R, so this probably does not work.
@@ -38,9 +38,9 @@ function [] = icp_iterative()
         
         % Would result in a 99 x 60k cloud, with many points close to or in
         % the same location?
-        merged_pc = [A2, transformed_A2];
+        merged_pc = [merged_pc, transformed_A2];
     end
-    
+    merged_pc = [merged_pc, A1];
     % Visualize results.
     fscatter3(merged_pc(1,:), merged_pc(2,:), merged_pc(3,:), zeros(size(merged_pc(1,:))));
 end
