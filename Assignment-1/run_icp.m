@@ -1,4 +1,7 @@
-function [R, T] = run_icp(A1, A2)
+function [R, T] = run_icp(A1, A2, threshold)
+    if nargin == 2
+        threshold = 0.001;
+    end
     R = eye(3);
     T = [0; 0; 0];
     
@@ -9,7 +12,7 @@ function [R, T] = run_icp(A1, A2)
 %         disp('Getting the matching points');
         [M, N] = get_matching_points(A1, A2);
         
-        % Compute the centroids and center the vectors
+        % Compute the centroids and centr the vectors
 %         disp('Getting the centroids');
         p_prime = (sum(M, 2) / size(M, 2));
         q_prime = (sum(N, 2) / size(N, 2));
@@ -31,7 +34,7 @@ function [R, T] = run_icp(A1, A2)
 %         disp('Getting the new RMS value');
         rms_value = find_RMS(M, N, R, T);
         disp(sprintf('Iteration %d: rms value %f', iteration, rms_value));
-        if abs(rms_value - prev_rms) < 0.001
+        if abs(rms_value - prev_rms) < threshold
             done = false;
         end
         prev_rms = rms_value;
