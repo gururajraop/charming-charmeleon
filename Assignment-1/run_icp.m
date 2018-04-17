@@ -26,7 +26,7 @@ function [R, T] = run_icp(A1, A2)
         % Find the new R and T values
 %         disp('Updating rotation and transformation matrix');
         R = V*diag([1, 1, det(V*U')])*(U');
-        T = q_prime - R * p_prime;
+        T = R * p_prime - q_prime;
         
 %         disp('Getting the new RMS value');
         rms_value = find_RMS(M, N, R, T);
