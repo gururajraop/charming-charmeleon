@@ -1,5 +1,6 @@
-function [rms_value] = find_RMS(M, N)
-    n = size(M, 1);
-    diff = sum(sum((M-N) .* (M-N)));
+function [rms_value] = find_RMS(M, N, R, T)
+    n = size(M, 2);
+    M_transformed = R * M - T;
+    diff = sum(sum((M_transformed - N) .* (M_transformed - N)));
     rms_value = sqrt(diff/n);
 end

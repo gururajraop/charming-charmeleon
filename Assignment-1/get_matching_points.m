@@ -1,18 +1,10 @@
-function [M, N] = get_matching_points(A, B, R, T)
-    M = [];
-    N = [];
-    disp('Getting matching points');
+function [A, N] = get_matching_points(A, B)
+    N = zeros(size(A));
     for i=1:size(A, 1)
-        min_dist = Inf('double');
-        M = [M; A(i, :)];
-        index = 1;
-        t = (R * A(i, :)')' - T;
-        for j=1:size(B, 1)
-            dist = sum(t - B(j, :));
-            if dist < min_dist
-                index = j;
-            end
-        end
-        N = [N; B(index, :)];
+        current_point = A(i, :);
+        dist = current_point - B;
+        dist = sqrt(sum(dist .* dist, 2));
+        [~, index] = min(dist);
+        N(i, :) = B(index, :);
     end
 end
