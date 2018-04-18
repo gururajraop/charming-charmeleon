@@ -10,7 +10,7 @@ function [R, T, A1] = run_icp(A1, A2, threshold)
     prev_rms = Inf('double');
     while (done && iteration < 50)
 %         disp('Getting the matching points');
-        [M, N] = get_matching_points(A1, A2);
+        [M, N] = get_matching_points(A1, A2, 'random', 1000);
         
         % Compute the centroids and centr the vectors
 %         disp('Getting the centroids');
