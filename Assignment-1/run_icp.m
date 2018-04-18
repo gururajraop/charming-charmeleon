@@ -1,4 +1,4 @@
-function [R, T] = run_icp(A1, A2, threshold)
+function [R, T, A1] = run_icp(A1, A2, threshold)
     if nargin == 2
         threshold = 0.001;
     end
@@ -8,7 +8,7 @@ function [R, T] = run_icp(A1, A2, threshold)
     done = true;
     iteration = 1;
     prev_rms = Inf('double');
-    while (done && iteration < 10)
+    while (done && iteration < 50)
 %         disp('Getting the matching points');
         [M, N] = get_matching_points(A1, A2);
         
@@ -33,7 +33,8 @@ function [R, T] = run_icp(A1, A2, threshold)
         
 %         disp('Getting the new RMS value');
         rms_value = find_RMS(M, N, R, T);
-        disp(sprintf('Iteration %d: rms value %f', iteration, rms_value));
+        mse = immse(M,N);
+        disp(sprintf('Iteration %d: rms value=%f, mse error=%f', iteration, rms_value, mse));
         if abs(rms_value - prev_rms) < threshold
             done = false;
         end
@@ -41,5 +42,5 @@ function [R, T] = run_icp(A1, A2, threshold)
         iteration = iteration + 1;
 %         disp('Tranforming the source points');
         A1 = R * A1 - T;
-    end  
+    end
 end

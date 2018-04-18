@@ -11,12 +11,15 @@ function [] = icp_iterative()
 %     merged_pc = readPcd ("Data/data/0000000000.pcd ")';
 %     merged_pc(:, merged_pc(3, :)>2) = [];
 %     merged_pc = merged_pc(1:3, :);
+    merged_pc = [];
     
     % Find camera poses for each pair and merge transformed clouds.
 %     for i = 1:length(point_clouds)    
     for i = 1:1
-        first = strcat(directory, point_clouds(i).name);
-        second = strcat(directory, point_clouds(i + 1).name);
+%         first = strcat(directory, point_clouds(i).name);
+%         second = strcat(directory, point_clouds(i + 1).name);
+        first = strcat("Data/data/0000000000.pcd");
+        second = strcat("Data/data/0000000001.pcd");
         A1 = readPcd(first)';
         A2 = readPcd(second)';
         
@@ -30,17 +33,16 @@ function [] = icp_iterative()
         
         % Find camera movement from A2 to A1
         tic
-        [R, T] = run_icp(A2, A1, 0.001);
+        [R, T, transformed_A1] = run_icp(A2, A1, 0.00001);
         toc
         
-        % Unsure of shape of R, so this probably does not work.
-        transformed_A2 = R * A2 + T;
+%         full = R * A1 - T;
         
         % Would result in a 99 x 60k cloud, with many points close to or in
         % the same location?
-        merged_pc = [merged_pc, transformed_A2];
+        merged_pc = [merged_pc, transformed_A1];
     end
-    merged_pc = [merged_pc, A1];
+    merged_pc = [merged_pc, A2];
     % Visualize results.
-    fscatter3(merged_pc(1,:), merged_pc(2,:), merged_pc(3,:), zeros(size(merged_pc(1,:))));
+    fscatter3(merged_pc(1,:), merged_pc(2,:), merged_pc(3,:), merged_pc(1,:));
 end
