@@ -1,4 +1,4 @@
-function [R, T, A1] = run_icp(A1, A2, threshold)
+function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold)
     if nargin == 2
         threshold = 0.001;
     end
@@ -8,7 +8,9 @@ function [R, T, A1] = run_icp(A1, A2, threshold)
     done = true;
     iteration = 1;
     prev_rms = Inf('double');
-    while (done && iteration < 50)
+    rms_values = [];
+    mse_values = [];
+    while (done && iteration < 25)
 %         disp('Getting the matching points');
         [M, N] = get_matching_points(A1, A2, 'random', 1000);
         
@@ -34,6 +36,8 @@ function [R, T, A1] = run_icp(A1, A2, threshold)
 %         disp('Getting the new RMS value');
         rms_value = find_RMS(M, N, R, T);
         mse = immse(M,N);
+        rms_values(end+1) = rms_value;
+        mse_values(end+1) = mse;
         disp(sprintf('Iteration %d: rms value=%f, mse error=%f', iteration, rms_value, mse));
         if abs(rms_value - prev_rms) < threshold
             done = false;
