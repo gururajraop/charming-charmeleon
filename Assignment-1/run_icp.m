@@ -1,6 +1,9 @@
-function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold)
+function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, sampling)
     if nargin == 2
         threshold = 0.001;
+        sampling = 'random';
+    elseif nargin == 3
+        sampling = 'random';
     end
     R = eye(3);
     T = [0; 0; 0];
@@ -10,9 +13,16 @@ function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold)
     prev_rms = Inf('double');
     rms_values = [];
     mse_values = [];
-    while (done && iteration < 25)
+    
+    [M, ~] = get_matching_points(A1, A2, sampling, 1000);
+    
+    while (iteration < 26)
 %         disp('Getting the matching points');
-        [M, N] = get_matching_points(A1, A2, 'random', 1000);
+        if strcmp(sampling, 'random')
+            [M, N] = get_matching_points(A1, A2, 'random', 1000);
+        else
+            [~, N] = get_matching_points(M, A2, sampling, 1000);
+        end
         
         % Compute the centroids and centr the vectors
 %         disp('Getting the centroids');
