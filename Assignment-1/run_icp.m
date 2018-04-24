@@ -1,4 +1,4 @@
-function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, sampling)
+function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, sampling)
     if nargin == 2
         threshold = 0.001;
         sampling = 'random';
@@ -8,6 +8,9 @@ function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, samplin
     R = eye(3);
     T = [0; 0; 0];
     
+    R_accumulative = R;
+    T_accumulative = T;
+    
     done = true;
     iteration = 1;
     prev_rms = Inf('double');
@@ -16,7 +19,7 @@ function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, samplin
     
     [M, ~] = get_matching_points(A1, A2, sampling, 1000);
     
-    while (iteration < 26)
+    while (iteration < 25 && done)
 %         disp('Getting the matching points');
         if strcmp(sampling, 'random')
             [M, N] = get_matching_points(A1, A2, 'random', 1000);
@@ -42,6 +45,10 @@ function [R, T, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, samplin
 %         disp('Updating rotation and transformation matrix');
         R = V*diag([1, 1, det(V*U')])*(U');
         T = R * p_prime - q_prime;
+        
+        % Define the total transformation by accumulating R and T
+        R_accumulative = R_accumulative * R;
+        T_accumulative = T_accumulative + T;
         
 %         disp('Getting the new RMS value');
         rms_value = find_RMS(M, N, R, T);

@@ -2,12 +2,16 @@
 %
 % Estimate camera poses and merge point clouds in a pairwise manner, with
 % pairs being selected consecutively or with a larger step size.
-function [] = icp_3_1(step)
+% 
+% Method can be (tbd):
+% - 'a' if it follows the method described in 3.1.a
+% - 'b' if it follows the method described in 3.1.b
+
+function merged_pc = icp_3_1(step)
     if nargin == 0
-        step = 1;
+        step = 4;
     end
-    
-    % Retrieve all pcd files and separate point clouds and normals.
+    % Retrieve all pcd files and separate point clouds and normals
     directory = 'Data\data\';
     
     point_clouds = dir(strcat(directory, '\', '\*.pcd'));
@@ -15,44 +19,46 @@ function [] = icp_3_1(step)
     normals = point_clouds(normals_indices);
     point_clouds(normals_indices) = [];
     
-    % Initialize a merged cloud outside of loop using the first .pcd.
+    % Initialize a merged cloud outside of loop using the first .pcd
     merged_pc = readPcd ("Data/data/0000000000.pcd ")';
     merged_pc(:, merged_pc(3, :)>2) = [];
     merged_pc = merged_pc(1:3, :);
     
-%     for i = 1:step:length(point_clouds) - step  
-    for i = 1:1
+    % Initialize color column for fscatter
+    color = [ones(1, size(merged_pc, 2))];
+    color(1, 1) = 10;
+
+    for i = 1:step:length(point_clouds) - step
+        fprintf('Current frame: %d/%d\n', i, length(point_clouds));
         first = strcat(directory, point_clouds(i).name);
         second = strcat(directory, point_clouds(i + step).name);
         A1 = readPcd(first)';
         A2 = readPcd(second)';
         
-        % Remove background points with distance > 2 to the camera.
-        A1(:, A1(3,:)>2) = [];
-        A2(:, A2(3,:)>2) = [];
-        
-        % Remove 'rgb' entry from point clouds.
+        % Remove background points with distance > 2 to the camera
+        A1(:, A1(3,:)>1.7) = [];
+        A2(:, A2(3,:)>1.7) = [];
+
+        % Remove 'rgb' entry from point clouds
         A1 = A1(1:3, :);
         A2 = A2(1:3, :);
         
-        % Find camera movement from A2 to A1
+        % Find camera movement from A1 to A2
         tic
-        [R, T] = run_icp(A2, A1, 0.0001);
+        [R, T, trans_A1, ~, ~] = run_icp(A1, A2, 0.000001);
         toc
         
-        % Transform A2 using camera movement and merge.
-        transformed_A2 = R * A2 + T;
-        merged_pc = [merged_pc, transformed_A2];
+        % Transform merged cloud using camera movement and merge with
+        % target
+        merged_pc = R * merged_pc - T;
+        merged_pc = [merged_pc, A2];
+        color = [color ones(1, size(A2, 2)) * i + step];
     end
-    
-    %%
-    % Visualize results.
-    figure(1)
-    fscatter3(A1(1,:), A1(2, :), A1(3, :), A1(1, :));
-    figure(2)
-    fscatter3(A2(1,:), A2(2, :), A2(3, :), A2(1, :));
-    figure(3)
-    fscatter3(transformed_A2(1,:), transformed_A2(2, :), transformed_A2(3, :), transformed_A2(1, :));
-    figure(4)
-    fscatter3(merged_pc(1,:), merged_pc(2,:), merged_pc(3,:), merged_pc(1,:));
+    % Visualize results
+    figure();
+    index = randsample(1:size(merged_pc,2), 10000);
+%     F = merged_pc(:, index);
+    F = merged_pc;
+%     color = color(index);
+    fscatter3(F(1,:), F(2,:), F(3,:), color');
 end
