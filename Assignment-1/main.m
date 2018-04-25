@@ -11,8 +11,8 @@ close all
 % target = A2(1:3, :);
 
 %% Run the ICP test for given sample source and destination
-load('Data\source.mat', 'source');
-load('Data\target.mat', 'target');
+% load('Data\source.mat', 'source');
+% load('Data\target.mat', 'target');
 
 % tic
 % [R, T, source_transformed, rms1, mse1] = run_icp(source, target, 0.001, 'all');
@@ -20,9 +20,9 @@ load('Data\target.mat', 'target');
 % tic
 % [R, T, source_transformed, rms2, mse2] = run_icp(source, target, 0.001, 'uniform');
 % toc
-tic
-[R, T, source_transformed, rms3, mse3] = run_icp(source, target, 0.001, 'random');
-toc
+% tic
+% [R, T, source_transformed, rms3, mse3] = run_icp(source, target, 0.001, 'random');
+% toc
 % index = randsample(1:60000, 10000);
 % source = source(:, index);
 % target = target(:, index);
@@ -51,5 +51,5 @@ toc
 % legend('all', 'uniform', 'random');
 
 %% Run full ICP on point clouds
-% icp_iterative();
+icp_iterative();
 

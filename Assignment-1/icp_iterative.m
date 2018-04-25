@@ -13,10 +13,11 @@ function [] = icp_iterative()
     merged_result = merged_result(1:3, :);
     
     % Find camera poses for each pair and merge transformed clouds.
-    for i = 1:(length(point_clouds)-6)
+    for i = 1:(length(point_clouds)-1)
 %     for i = 1:10
+        disp(i);
         first = strcat(directory, point_clouds(i).name);
-        second = strcat(directory, point_clouds(i + 5).name);
+        second = strcat(directory, point_clouds(i + 1).name);
         A1 = readPcd(first)';
         A2 = readPcd(second)';
         
@@ -30,7 +31,7 @@ function [] = icp_iterative()
         
         % Find camera movement from A2 to A1
         tic
-        [R, T, transformed_A1, ~, ~] = run_icp(A2, A1, 0.0001);
+        [R, T, transformed_A1, ~, ~] = run_icp(A1, A2, 0.0001);
         toc
         
         merged_result = R * merged_result - T;
@@ -38,15 +39,11 @@ function [] = icp_iterative()
         % Would result in a 99 x 60k cloud, with many points close to or in
         % the same location?
         merged_result = [merged_result, transformed_A1];
-        i = i + 5;
     end
-%     merged_result = [merged_result, A2];
-%     merged_result(:, merged_result(3,:)>1.5) = [];
-%     merged_result(:, merged_result(3,:)<0.5) = [];
     
     % Visualize results.
-    index = randsample(1:size(merged_result,2), 10000);
+    index = randsample(1:size(merged_result,2), 60000);
     F = merged_result(:, index);
-    F = merged_result;
+%     F = merged_result;
     scatter3(F(1,:), F(2,:), F(3,:), 'r.');
 end
