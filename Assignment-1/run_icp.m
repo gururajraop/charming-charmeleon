@@ -19,15 +19,17 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
     
     [M, ~] = get_matching_points(A1, A2, sampling, 1000);
     
-    while (iteration < 25 && done)
+    while (iteration < 30 && done)
 %         disp('Getting the matching points');
         if strcmp(sampling, 'random')
             [M, N] = get_matching_points(A1, A2, 'random', 1000);
+        elseif strcmp(sampling, 'regions')
+            [M, N] = get_matching_points(A1, A2, 'regions', 1000);
         else
             [~, N] = get_matching_points(M, A2, sampling, 1000);
         end
         
-        % Compute the centroids and centr the vectors
+        % Compute the centroids and center the vectors
 %         disp('Getting the centroids');
         p_prime = (sum(M, 2) / size(M, 2));
         q_prime = (sum(N, 2) / size(N, 2));
@@ -48,14 +50,14 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
         
         % Define the total transformation by accumulating R and T
         R_accumulative = R_accumulative * R;
-        T_accumulative = T_accumulative + T;
+        T_accumulative = R * T_accumulative + T;
         
 %         disp('Getting the new RMS value');
         rms_value = find_RMS(M, N, R, T);
         mse = immse(M,N);
         rms_values(end+1) = rms_value;
         mse_values(end+1) = mse;
-%         disp(sprintf('Iteration %d: rms value=%f, mse error=%f', iteration, rms_value, mse));
+        disp(sprintf('Iteration %d: rms value=%f, mse error=%f', iteration, rms_value, mse));
         if abs(rms_value - prev_rms) < threshold
             done = false;
         end

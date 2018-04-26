@@ -2,15 +2,12 @@
 %
 % Estimate camera poses and merge point clouds in a pairwise manner, with
 % pairs being selected consecutively or with a larger step size.
-% 
-% Method can be (tbd):
-% - 'a' if it follows the method described in 3.1.a
-% - 'b' if it follows the method described in 3.1.b
 
 function merged_pc = icp_3_1(step)
     if nargin == 0
-        step = 4;
+        step = 3;
     end
+ 
     % Retrieve all pcd files and separate point clouds and normals
     directory = 'Data\data\';
     
@@ -29,6 +26,7 @@ function merged_pc = icp_3_1(step)
     color(1, 1) = 10;
 
     for i = 1:step:length(point_clouds) - step
+%     for i = 1:step:3 * step - step
         fprintf('Current frame: %d/%d\n', i, length(point_clouds));
         first = strcat(directory, point_clouds(i).name);
         second = strcat(directory, point_clouds(i + step).name);
@@ -36,8 +34,8 @@ function merged_pc = icp_3_1(step)
         A2 = readPcd(second)';
         
         % Remove background points with distance > 2 to the camera
-        A1(:, A1(3,:)>1.7) = [];
-        A2(:, A2(3,:)>1.7) = [];
+        A1(:, A1(3,:)>2) = [];
+        A2(:, A2(3,:)>2) = [];
 
         % Remove 'rgb' entry from point clouds
         A1 = A1(1:3, :);
@@ -45,7 +43,7 @@ function merged_pc = icp_3_1(step)
         
         % Find camera movement from A1 to A2
         tic
-        [R, T, trans_A1, ~, ~] = run_icp(A1, A2, 0.000001);
+        [R, T, ~, ~, ~] = run_icp(A1, A2, 0.00000001);
         toc
         
         % Transform merged cloud using camera movement and merge with

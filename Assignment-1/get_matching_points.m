@@ -16,8 +16,10 @@ function [M, N] = get_matching_points(A, B, sample_type, sample_size)
             index = randsample(1:size(A,2), sample_size);
             M = A(:, index);
         case 'regions'
-            % TODO: Implement the region based sampling
-            M = A;
+            max_for_sample = max(B, [], 2) * 1.1;
+            min_for_sample = min(B, [], 2) * 1.1;
+            index = randsample(1:size(A,2), sample_size);
+            M = A(:, index);
     end
     N = zeros(size(M));
     for i=1:size(M, 2)
