@@ -10,12 +10,14 @@ sample_type = 'random';             % Point selection method to be used
 sample_size = 1000;                 % Number of points to be sampled for ICP
 threshold = 0.0001;                 % RMS change threshold
 n_iterations = 25;                  % Max number of iterations of ICP
+matching_type = 'kdTree';           % Matching type
+                                    % brute_force, kdTree, delaunay
 
 %% Run the ICP test
-ICP_test(test_scene, sample_type, sample_size, threshold, n_iterations);
+ICP_test(test_scene, sample_type, sample_size, threshold, n_iterations, matching_type);
 
 %% Compare the various sampling methods
-compare_sampling_methods();
+% compare_sampling_methods();
 
 %% Run full ICP on point clouds
 % icp_iterative();

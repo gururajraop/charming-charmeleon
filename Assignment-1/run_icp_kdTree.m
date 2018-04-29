@@ -1,24 +1,18 @@
-function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, sample_type, sample_size, n, matching_type)
+function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp_kdTree(A1, A2, threshold, sample_type, sample_size, n)
     if nargin == 2
         threshold = 0.001;
         sample_type = 'random';
         sample_size = 1000;
         n = 25;
-        matching_type = 'brute_force';
     elseif nargin == 3
         sample_type = 'random';
         sample_size = 1000;
         n = 25;
-        matching_type = 'brute_force';
     elseif nargin == 4
         sample_size = 1000;
         n = 25;
-        matching_type = 'brute_force';
     elseif nargin == 5
         n = 25;
-        matching_type = 'brute_force';
-    elseif nargin == 6
-        matching_type = 'brute_force';
     end
     R = eye(3);
     T = [0; 0; 0];
@@ -32,14 +26,15 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
     rms_values = [];
     mse_values = [];
     
-    [M, ~] = get_matching_points(A1, A2, sample_type, sample_size, matching_type);
+    [M, ~] = get_matching_points(A1, A2, sample_type, sample_size);
+    kdOBJ = KDTreeSearcher(transpose(q));
     
     while (iteration < n+1 && done)
 %         disp('Getting the matching points');
         if strcmp(sample_type, 'uniform')
-            [M, N] = get_matching_points(M, A2, sample_type, sample_size, matching_type);
+            [M, N] = get_matching_points(M, A2, sample_type, sample_size);
         else
-            [M, N] = get_matching_points(A1, A2, sample_type, sample_size, matching_type);
+            [M, N] = get_matching_points(A1, A2, sample_type, sample_size);
         end
         
         % Compute the centroids and center the vectors

@@ -1,4 +1,4 @@
-function [] = ICP_test(test_scene, sample_type, sample_size, threshold, n_iterations)
+function [] = ICP_test(test_scene, sample_type, sample_size, threshold, n_iterations, matching_type)
     switch test_scene
         case 'wave'
             load('Data\source.mat', 'source');
@@ -16,7 +16,7 @@ function [] = ICP_test(test_scene, sample_type, sample_size, threshold, n_iterat
     
     tic
     [~, ~, source_transformed, rms, mse] = run_icp(source, target, threshold, ...
-        sample_type, sample_size, n_iterations);
+        sample_type, sample_size, n_iterations, matching_type);
     toc
     
     if strcmp(test_scene, 'human_head')

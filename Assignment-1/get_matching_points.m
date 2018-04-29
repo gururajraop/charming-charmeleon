@@ -1,9 +1,13 @@
-function [M, N] = get_matching_points(A, B, sample_type, sample_size)
+function [M, N] = get_matching_points(A, B, sample_type, sample_size, match_type)
     if nargin == 2
         sample_type = 'random';
         sample_size = 1000;
+        match_type = 'brute_force';
     elseif nargin == 3
         sample_size = 1000;
+        match_type = 'brute_force';
+    elseif nargin == 4
+        match_type = 'brute_force';
     end
     
     switch sample_type
@@ -30,6 +34,20 @@ function [M, N] = get_matching_points(A, B, sample_type, sample_size)
             index = randsample(1:size(A,2), sample_size);
             M = A(:, index);
     end
+    
+    switch match_type
+        case 'brute_force'
+            N = match_brute_force(M, B);
+        case 'kdTree'
+            N = match_kdTree(M, B);
+        case 'delaunay'
+            N = match_delaunay(M, B);
+        otherwise
+            error('Unknown matching technique. Please use brute_force or kdTree option');
+    end
+end
+
+function [N] = match_brute_force(M, B)
     N = zeros(size(M));
     for i=1:size(M, 2)
         current_point = M(:, i);
@@ -38,4 +56,15 @@ function [M, N] = get_matching_points(A, B, sample_type, sample_size)
         [~, index] = min(dist);
         N(:, i) = B(:, index);
     end
+end
+
+function [N] = match_kdTree(M, B)
+    idx = knnsearch(B', M');
+    N = B(:, idx);
+end
+
+function [N] = match_delaunay(M, B)
+    DT = delaunayTriangulation(B');
+    idx = nearestNeighbor(DT, M');
+    N = B(:, idx);
 end
