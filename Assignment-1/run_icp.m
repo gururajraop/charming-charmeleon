@@ -30,10 +30,10 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
     
     while (iteration < n+1 && done)
 %         disp('Getting the matching points');
-        if strcmp(sample_type, 'random') || strcmp(sample_type, 'regions')
-            [M, N] = get_matching_points(A1, A2, sample_type, sample_size);
+        if strcmp(sample_type, 'uniform')
+            [M, N] = get_matching_points(M, A2, sample_type, sample_size);
         else
-            [~, N] = get_matching_points(M, A2, sample_type, sample_size);
+            [M, N] = get_matching_points(A1, A2, sample_type, sample_size);
         end
         
         % Compute the centroids and center the vectors
@@ -72,5 +72,8 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
         iteration = iteration + 1;
 %         disp('Tranforming the source points');
         A1 = R * A1 - T;
+        if strcmp(sample_type, 'uniform')
+            M = R * M - T;
+        end
     end
 end
