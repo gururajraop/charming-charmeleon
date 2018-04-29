@@ -1,9 +1,18 @@
-function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, sampling)
+function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(A1, A2, threshold, sample_type, sample_size, n)
     if nargin == 2
         threshold = 0.001;
-        sampling = 'random';
+        sample_type = 'random';
+        sample_size = 1000;
+        n = 25;
     elseif nargin == 3
-        sampling = 'random';
+        sample_type = 'random';
+        sample_size = 1000;
+        n = 25;
+    elseif nargin == 4
+        sample_size = 1000;
+        n = 25;
+    elseif nargin == 5
+        n = 25;
     end
     R = eye(3);
     T = [0; 0; 0];
@@ -17,16 +26,14 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
     rms_values = [];
     mse_values = [];
     
-    [M, ~] = get_matching_points(A1, A2, sampling, 1000);
+    [M, ~] = get_matching_points(A1, A2, sample_type, sample_size);
     
-    while (iteration < 30 && done)
+    while (iteration < n+1 && done)
 %         disp('Getting the matching points');
-        if strcmp(sampling, 'random')
-            [M, N] = get_matching_points(A1, A2, 'random', 1000);
-        elseif strcmp(sampling, 'regions')
-            [M, N] = get_matching_points(A1, A2, 'regions', 1000);
+        if strcmp(sample_type, 'random') || strcmp(sample_type, 'regions')
+            [M, N] = get_matching_points(A1, A2, sample_type, sample_size);
         else
-            [~, N] = get_matching_points(M, A2, sampling, 1000);
+            [~, N] = get_matching_points(M, A2, sample_type, sample_size);
         end
         
         % Compute the centroids and center the vectors

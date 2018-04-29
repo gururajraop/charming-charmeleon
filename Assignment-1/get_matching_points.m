@@ -16,8 +16,17 @@ function [M, N] = get_matching_points(A, B, sample_type, sample_size)
             index = randsample(1:size(A,2), sample_size);
             M = A(:, index);
         case 'regions'
-            max_for_sample = max(B, [], 2) * 1.1;
-            min_for_sample = min(B, [], 2) * 1.1;
+            maxB = max(B, [], 2);
+            minB = min(B, [], 2);
+                       
+            A(:, A(1,:) > maxB(1)) = [];
+            A(:, A(2,:) > maxB(2)) = [];
+            A(:, A(3,:) > maxB(3)) = [];
+          
+            A(:, A(1,:) < minB(1)) = [];
+            A(:, A(2,:) < minB(2)) = [];
+            A(:, A(3,:) < minB(3)) = [];
+            
             index = randsample(1:size(A,2), sample_size);
             M = A(:, index);
     end
