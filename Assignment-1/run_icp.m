@@ -65,7 +65,7 @@ function [R_accumulative, T_accumulative, A1, rms_values, mse_values] = run_icp(
         rms_values(end+1) = rms_value;
         mse_values(end+1) = mse;
         disp(sprintf('Iteration %d: rms value=%f, mse error=%f', iteration, rms_value, mse));
-        if abs(rms_value - prev_rms) < threshold
+        if abs(rms_value - prev_rms) < threshold && iteration > 9
             done = false;
         end
         prev_rms = rms_value;
