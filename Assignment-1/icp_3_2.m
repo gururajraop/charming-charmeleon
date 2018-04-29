@@ -2,12 +2,9 @@
 %
 % Estimate camera poses from each consecutive frame to the merged point
 % cloud of preceding frames, and merge with that cloud.
-function merged_pc = icp_3_2(step, sampling)
+function merged_pc = icp_3_2(step, sample_type, sample_size, threshold, n_iterations, matching_type)
     if nargin == 0
-        step = 1
-        sampling = 'random'
-    elseif nargin == 1
-        sampling = 'random'
+        step = 1;
     end
     
     % Retrieve all pcd files and separate point clouds and normals
@@ -44,7 +41,8 @@ function merged_pc = icp_3_2(step, sampling)
         
         % Find camera movement from A2 to A1
         tic
-        [R, T, ~, ~, ~] = run_icp(merged_pc, A2, 0.0000001, sampling);
+        [R, T, ~, ~, ~] = run_icp(merged_pc, A2, threshold, ...
+        sample_type, sample_size, n_iterations, matching_type);
         toc
         
         % Transform merged cloud using camera movement and merge with

@@ -3,7 +3,7 @@
 % Estimate camera poses and merge point clouds in a pairwise manner, with
 % pairs being selected consecutively or with a larger step size.
 
-function merged_pc = icp_3_1(step)
+function merged_pc = icp_3_1(step, sample_type, sample_size, threshold, n_iterations, matching_type)
     if nargin == 0
         step = 3;
     end
@@ -43,7 +43,8 @@ function merged_pc = icp_3_1(step)
         
         % Find camera movement from A1 to A2
         tic
-        [R, T, ~, ~, ~] = run_icp(A1, A2, 0.00000001);
+        [R, T, ~, ~, ~] = run_icp(A1, A2, threshold, ...
+        sample_type, sample_size, n_iterations, matching_type);
         toc
         
         % Transform merged cloud using camera movement and merge with

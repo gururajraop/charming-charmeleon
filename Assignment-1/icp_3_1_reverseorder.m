@@ -7,12 +7,9 @@
 % - 'a' if it follows the method described in 3.1.a
 % - Anything else defaults to the method described in 3.1.b
 
-function merged_pc = icp_3_1(step, sampling)
+function merged_pc = icp_3_1_reverseorder(step, sample_type, sample_size, threshold, n_iterations, matching_type)
     if nargin == 0
-        step = 1
-        sampling = 'random'
-    elseif nargin == 1
-        sampling = 'random'
+        step = 1;
     end
     
     % Retrieve all pcd files and separate point clouds and normals
@@ -53,7 +50,8 @@ function merged_pc = icp_3_1(step, sampling)
         
         % Find camera movement from A2 to A1
         tic
-        [R, T, ~, ~, ~] = run_icp(A2, A1, 0.0000001, sampling);
+        [R, T, ~, ~, ~] = run_icp(A2, A1, threshold, ...
+        sample_type, sample_size, n_iterations, matching_type);
         toc
         
         % Define the total transformation by accumulating R and T
