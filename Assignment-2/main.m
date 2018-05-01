@@ -6,7 +6,7 @@ close all
 data_path = './Data/House/';
 
 %% matching process
-matching(data_path);
+image_matching(data_path);
 
 %% Chaining
 
