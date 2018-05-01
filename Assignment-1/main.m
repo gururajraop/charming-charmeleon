@@ -12,7 +12,7 @@ threshold = 0.0001;                 % RMS change threshold
 n_iterations = 30;                  % Max number of iterations of ICP
 matching_type = 'kdTree';           % Matching type
                                     % brute_force, kdTree, delaunay
-step_size = 1                       % Step size in merging
+step_size = 1;                      % Step size in merging
 
 %% Run the ICP test
 ICP_test(test_scene, sample_type, sample_size, threshold, n_iterations, matching_type);
