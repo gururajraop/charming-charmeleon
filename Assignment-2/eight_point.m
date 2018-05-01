@@ -1,3 +1,3 @@
-function [] = eight_point()
+function [] = eight_point(A, F)
 
 end
