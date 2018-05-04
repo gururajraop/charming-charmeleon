@@ -6,11 +6,11 @@ function [F] = eight_point(f1, f2)
     % Find SVD components of point matrix A
     [~, D, V] = svd(A);
     
-    % Initialize F with column of V corresponding to min sigular value
+    % Initialize F with column of V corresponding to min singular value
     [~,i] = min(diag(D));
     F = V(i,:)';
     
-    % Correct the entries of F for sigularity
+    % Correct the entries of F for singularity
     [Uf, Df, Vf] = svd(F);
     [~,i] = min(Df);
     Df(i) = 0;

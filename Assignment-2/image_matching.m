@@ -4,6 +4,5 @@ function [] = image_matching(path)
     image1 = im2single(imread(path1));
     image2 = im2single(imread(path2));
     
-    matching(image1, image2);
-    
+    matching(image1, image2);  
 end

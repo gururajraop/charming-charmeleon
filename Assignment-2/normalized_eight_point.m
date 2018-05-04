@@ -1,39 +1,21 @@
-function [F] = normalized_eight_point(f1, f2)
+function [F] = normalized_eight_point(f1, f2, T1, T2) 
+    % Get normalized coordinates if not normalized already
+    if size(f1, 2) ~= 8
+        [f1, T1] = normalization(f1);
+        [f2, T2]= normalization(f2);
+    end
 
-    % Get the normalization constants
-    mx1 = sum(f1(1,:)) / size(f1, 2);
-    my1 = sum(f1(2,:)) / size(f1, 2);
-    d1 = sum(sqrt((f1(1,:)-mx1).^2 + (f1(2,:)-my1).^2)) / size(f1, 2);
-
-    mx2 = sum(f2(1,:)) / size(f2, 2);
-    my2 = sum(f2(2,:)) / size(f2, 2);
-    d2 = sum(sqrt((f2(1,:)-mx2).^2 + (f2(2,:)-my2).^2)) / size(f2, 2);
-    
-    % Construct the normalization matrix
-    T1 = [sqrt(2)/d1, 0, -mx1*sqrt(2)/d1; 0, sqrt(2)/d1, -my1*sqrt(2)/d1; 0, 0, 1];
-    
-    T2 = [sqrt(2)/d2, 0, -mx2*sqrt(2)/d2; 0, sqrt(2)/d2, -my2*sqrt(2)/d2; 0, 0, 1];
-    
-    % Get the normalized coordinates
-    f1_new = ones(3, size(f1,2));
-    f1_new(1:2,:) = f1(1:2,:);
-    f1_new = T1 * f1_new;
-    
-    f2_new = ones(3, size(f2,2));
-    f2_new(1:2,:) = f2(1:2,:);
-    f2_new = T2 * f2_new;
-
-    % Obtain the fundamental matrix
-    A = build_point_matrix(f1_new, f2_new);
+    % Obtain the A matrix
+    A = build_point_matrix(f1, f2);
     
     % Find SVD components of point matrix A
     [~, D, V] = svd(A);
     
-    % Initialize F with column of V corresponding to min sigular value
+    % Initialize F with column of V corresponding to min singular value
     [~,i] = min(diag(D));
     F = V(i,:)';
     
-    % Correct the entries of F for sigularity
+    % Correct the entries of F for singularity
     [Uf, Df, Vf] = svd(F);
     [~,i] = min(Df);
     Df(i) = 0;
@@ -42,6 +24,6 @@ function [F] = normalized_eight_point(f1, f2)
     F = Uf * Df * Vf;
     F = reshape(F, 3,3);
     
-    % Denormalize the fundamanetal matrix
+    % Denormalize the fundamental matrix
     F = T2' * F' * T1;
 end
