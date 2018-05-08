@@ -15,8 +15,8 @@ function [] = matching(image1, image2)
     
     F2 = normalized_eight_point(f1, f1_new);
     check_correctness(F2, f1, f1_new);
-%     
-%     F3 = normalized_eight_point_RANSAC(f1, f1_new);
+    
+    F3 = normalized_eight_point_RANSAC(f1, f1_new);
     
     % Plot the epipolar lines
     plot_epipolar_lines(image1, F1);

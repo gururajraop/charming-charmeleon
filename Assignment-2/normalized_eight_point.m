@@ -13,12 +13,12 @@ function [F] = normalized_eight_point(f1, f2, T1, T2)
     
     % Initialize F with column of V corresponding to min singular value
     [~,i] = min(diag(D));
-    F = V(i,:)';
+    F = reshape(V(:,i), 3, 3)';
     
     % Correct the entries of F for singularity
     [Uf, Df, Vf] = svd(F);
-    [~,i] = min(Df);
-    Df(i) = 0;
+    [~,i] = min(diag(Df));
+    Df(i,i) = 0;
     
     % Update F with corrected values
     F = Uf * Df * Vf;

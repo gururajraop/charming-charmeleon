@@ -42,7 +42,7 @@ function [F] = normalized_eight_point_RANSAC(f1, f2, threshold, iterations)
             
             sampson(j) = numerator / denominator;
         end
-%         sampson
+        sampson
         inliers_index = find(sampson < threshold);
         inliers = length(inliers_index);
         fprintf("\n\nIteration %d\n", i);
