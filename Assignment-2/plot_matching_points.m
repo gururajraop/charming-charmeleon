@@ -6,7 +6,7 @@ function [] = plot_matching_points(image1, image2, matches, F1, F2)
     hold on;
     
     perm = randperm(size(matches,2)) ;
-    sel = perm(1:size(matches,2));
+    sel = perm(1:50);
     
     for s = sel
         F1_index = matches(1, s);
@@ -24,4 +24,7 @@ function [] = plot_matching_points(image1, image2, matches, F1, F2)
         
         plot([data1(1) data2(1)], [data1(2) data2(2)], 'b-', 'LineWidth', 2);
     end
+    
+    hold off;
+    title('Matching points in 2 images');
 end
