@@ -21,7 +21,7 @@ function [F] = normalized_eight_point(f1, f2, T1, T2)
     Df(i,i) = 0;
     
     % Update F with corrected values
-    F = Uf * Df * Vf;
+    F = Uf * Df * Vf';
     F = reshape(F, 3,3);
     
     % Denormalize the fundamental matrix

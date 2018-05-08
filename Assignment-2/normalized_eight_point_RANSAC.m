@@ -14,10 +14,8 @@ function [F] = normalized_eight_point_RANSAC(f1, f2, threshold, iterations)
     % Find optimal F using RANSAC
     best_inliers = 0;
     best_inliers_index = [];
-    best_F = [];
     
-%     for i = 1:iterations
-    for i = 1
+    for i = 1:iterations
         % Randomly sample eight point correspondences
         index = randsample(1:size(f1_new,2), 8);
         f1_sampled_points = f1_new(:, index);
@@ -42,15 +40,13 @@ function [F] = normalized_eight_point_RANSAC(f1, f2, threshold, iterations)
             
             sampson(j) = numerator / denominator;
         end
-        sampson
         inliers_index = find(sampson < threshold);
         inliers = length(inliers_index);
-        fprintf("\n\nIteration %d\n", i);
+%         fprintf("\n\nIteration %d\n", i);
         
         if inliers > best_inliers
             best_inliers_index = inliers_index;
             best_inliers = inliers;
-            best_F = F;
         end
     end
     

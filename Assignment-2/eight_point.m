@@ -16,6 +16,6 @@ function [F] = eight_point(f1, f2)
     Df(i,i) = 0;
     
     % Update F with corrected values
-    F = Uf * Df * Vf;
+    F = Uf * Df * Vf';
     F = reshape(F, 3, 3);
 end
