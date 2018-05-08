@@ -6,7 +6,7 @@ function [] = plot_matching_points(image1, image2, matches, F1, F2)
     hold on;
     
     perm = randperm(size(matches,2)) ;
-    sel = perm(1:50);
+    sel = perm(1:size(matches,2));
     
     for s = sel
         F1_index = matches(1, s);
