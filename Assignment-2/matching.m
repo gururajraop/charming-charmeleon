@@ -19,11 +19,11 @@ function [] = matching(image1, image2)
     check_correctness(F2, f1, f1_new);
     
     disp('Normalized eight point algorithm using RANSAC');
-    F3 = normalized_eight_point_RANSAC(f1, f1_new);
-    check_correctness(F3, f1, f1_new);
+%     F3 = normalized_eight_point_RANSAC(f1, f1_new, 1, 10000);
+%     check_correctness(F3, f1, f1_new);
     
     % Plot the epipolar lines
-    plot_epipolar_lines(image1, f1, F1);
+    plot_epipolar_lines(image2, f1, F2);
 end
 
 function [] = check_correctness(F, f1, f2)

@@ -1,11 +1,10 @@
 function [f1_new, t_new, best_x] = RANSAC(t, f1, f2)
-    n = randi([15, 100]);
+    n = 1000;
     
     best_inliers = 0;
     best_x = [1 1 0; 1 1 0];
     
     for i = 1:n
-        
         perm = randperm(size(t, 2));
         perm_n = randi([1, round(size(t, 2) / 3)]);
         p = perm(1:perm_n);

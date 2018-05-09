@@ -11,10 +11,12 @@ function [] = plot_epipolar_lines(image, f, F)
     
     for s = sel
         l = F * p(:,s);
-        l = l / norm(l);
+        line = create_line( l, size(image));
         
-        line = clipline( l, size(image)');
-        plot(line(:,1), line(:,2), 'b-', 'LineWidth', 2);
+        plot(p(1,s), p(2,s), 'bo');
+%         plot(p(1,s), p(2,s), 'o', 'MarkerSize', 10,...
+%             'MarkerEdgeColor','b','MarkerFaceColor','r');
+        plot(line(1,:), line(2,:), 'g-', 'LineWidth', 1.2);
     end
     
     hold off;
