@@ -60,7 +60,7 @@ function pointviewMatrix = chaining(path)
     figure()
     pointviewMatrix_inverted = ~pointviewMatrix;
     imshow(pointviewMatrix_inverted);
-    daspect([1 1 1])
+    daspect([20 1 1])
     %%
     figure()
     [y,x] = find(pointviewMatrix);
