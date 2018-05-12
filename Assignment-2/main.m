@@ -9,5 +9,6 @@ data_path = './Data/House/';
 image_matching(data_path);
 
 %% Chaining
+pointviewMatrix = chaining(data_path);
 
 %% Structure from motion
