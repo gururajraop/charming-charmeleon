@@ -1,6 +1,4 @@
 function pointviewMatrix = chaining(path)
-    path = './Data/House/';
-
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
@@ -53,18 +51,8 @@ function pointviewMatrix = chaining(path)
     
 
     %%
-    figure()
-    spy(pointviewMatrix, 'sk');
-    pbaspect([2 1 1])
-    %%
-    figure()
-    pointviewMatrix_inverted = ~pointviewMatrix;
-    imshow(pointviewMatrix_inverted);
-    daspect([20 1 1])
-    %%
-    figure()
-    [y,x] = find(pointviewMatrix);
-    scatter(x,y,'s', 'MarkerEdgeColor', 'k',...
-              'MarkerFaceColor','k', 'SizeData', 2);
-    set ( gca, 'ydir', 'reverse' )
+    pointviewMatrix_inverted = double(~pointviewMatrix);
+    imagesc(pointviewMatrix_inverted)
+    colormap(gray)
+    axis off
 end
