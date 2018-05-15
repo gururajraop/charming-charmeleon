@@ -23,7 +23,6 @@ function pointviewMatrix = chaining(path)
             point1 = f1(1:2, matches_index(1));
             point2 = f2(1:2, matches_index(2));
 
-
             if j ~= 1 && isempty(find(new_points(1, :) == matches_index(2))) == 0
                 counter = counter + 1;
                 continue
@@ -35,18 +34,21 @@ function pointviewMatrix = chaining(path)
 
             if isempty(index) == 0
                 index_in_pvm = points_added(2, index);
-                pointviewMatrix(i, index_in_pvm) = 1;
+                pointviewMatrix(i * 2 - 1, index_in_pvm) = point1(1);
+                pointviewMatrix(i * 2, index_in_pvm) = point1(2);
                 indices = [matches_index(2); index_in_pvm];
                 new_points = [new_points indices]; 
             else
-                pointviewMatrix = [pointviewMatrix zeros(size(images,1) ,1)];
-                pointviewMatrix(i, end) = 1;
+                pointviewMatrix = [pointviewMatrix zeros(size(images,1) * 2 - 2 ,1)];
+                pointviewMatrix(i * 2 - 1, end) = point1(1);
+                pointviewMatrix(i * 2, end) = point1(2);
                 indices = [matches_index(2); size(pointviewMatrix, 2)];
                 new_points = [new_points indices];
             end         
         end
         points_added = new_points;
     end
+    
     fprintf("Two points matched to a single point: %d times\n", counter);
     
 
