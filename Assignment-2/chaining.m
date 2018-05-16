@@ -1,6 +1,6 @@
 function pointviewMatrix = chaining(path)
     images = dir(strcat(path, '\', '\*.png'));
-    images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
+%     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
     pointviewMatrix = [];
     % Store points added on the previous image pair
@@ -53,8 +53,10 @@ function pointviewMatrix = chaining(path)
     
 
     %%
+    figure()
+    size(pointviewMatrix)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
-    axis off
+%     axis off
 end

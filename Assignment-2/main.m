@@ -5,11 +5,12 @@ close all
 %% User defined parameters initialization
 data_path = './Data/House/';
 
-%% matching process
+%% Matching process
 image_matching(data_path);
 
 %% Chaining
-pointviewMatrix = chaining(data_path);
+pointviewMatrix1 = chaining(data_path);
+% pointviewMatrix2 = chaining2(data_path);
 
 %%
 % TODO: Get denseBlock from pointviewMatrix, until then use the loaded one
