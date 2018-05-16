@@ -6,8 +6,8 @@ function [] = matching(image1, image2)
     % Apply RANSAC on the matches to get the transformation
     [f1_new, t_new, ~] = RANSAC(matches, f1, f2);
     
-    % Plot the matching points
-    plot_matching_points(image1, image2, t_new, f1, f1_new);
+%     % Plot the matching points
+%     plot_matching_points(image1, image2, t_new, f1, f1_new);
     
     % Apply eight point algorithm
     disp('Basic eight point algorithm');
@@ -19,11 +19,11 @@ function [] = matching(image1, image2)
     check_correctness(F2, f1, f1_new);
     
     disp('Normalized eight point algorithm using RANSAC');
-%     F3 = normalized_eight_point_RANSAC(f1, f1_new, 1, 10000);
-%     check_correctness(F3, f1, f1_new);
+    F3 = normalized_eight_point_RANSAC(f1, f1_new, 1, 1000);
+    check_correctness(F3, f1, f1_new);
     
     % Plot the epipolar lines
-    plot_epipolar_lines(image2, f1, F2);
+    plot_epipolar_lines(image2, f1, F3);
 end
 
 function [] = check_correctness(F, f1, f2)

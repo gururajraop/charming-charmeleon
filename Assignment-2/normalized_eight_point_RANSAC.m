@@ -21,7 +21,7 @@ function [F] = normalized_eight_point_RANSAC(f1, f2, threshold, iterations)
         f1_sampled_points = f1_new(:, index);
         f2_sampled_points = f2_new(:, index);
         
-        F = normalized_eight_point(f1_sampled_points, f2_sampled_points, T1, T2);
+        F = normalized_eight_point(f1_sampled_points, f2_sampled_points, false, T1, T2);
         
         % Apply Sampson distance threshold
         sampson = zeros(1, size(f1_new, 2));
