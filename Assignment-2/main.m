@@ -12,12 +12,12 @@ image_matching(data_path);
 pointviewMatrix = chaining(data_path);
 
 %%
-
 % TODO: Get denseBlock from pointviewMatrix, until then use the loaded one
-indices = find(sum(pointviewMatrix(:,:)~=0) == 98)
-denseBlock = pointviewMatrix(:, indices)
+indices = find(sum(pointviewMatrix(:,:)~=0) == 96);
+denseBlock = pointviewMatrix(:, indices);
+denseBlock = denseBlock(1:96, :);
 
-denseBlock = load('pointviewmatrix.txt')
+denseBlock = load('pointviewmatrix.txt');
 %% Structure from motion
 sfm(denseBlock)
 
