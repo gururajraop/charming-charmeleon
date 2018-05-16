@@ -52,8 +52,10 @@ function pointviewMatrix = chaining(path)
     
 
     %%
+    figure()
+    size(pointviewMatrix)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
-    axis off
+%     axis off
 end

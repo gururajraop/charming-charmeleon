@@ -10,6 +10,7 @@ data_path = './Data/House/';
 
 %% Chaining
 % point_view_matrix = chaining(data_path);
+% pointviewMatrix2 = chaining2(data_path);
 % save('./Results/point_view_matrix.mat', 'point_view_matrix');
 
 point_view_matrix = load('pointviewmatrix.txt');
