@@ -1,6 +1,10 @@
-function [F] = normalized_eight_point(f1, f2, T1, T2) 
+function [F] = normalized_eight_point(f1, f2, normalize, T1, T2)
+    if nargin == 2
+        normalize = true;
+    end
+    
     % Get normalized coordinates if not normalized already
-    if size(f1, 2) ~= 8
+    if normalize
         [f1, T1] = normalization(f1);
         [f2, T2]= normalization(f2);
     end
