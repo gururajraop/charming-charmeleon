@@ -7,7 +7,7 @@ function [] = plot_epipolar_lines(image, f, F)
     p = ones(3, size(f,2));
     p(1:2, :) = f(1:2,:);
     perm = randperm(size(p,2)) ;
-    sel = perm(1:50);
+    sel = perm(1:8);
     
     for s = sel
         l = F * p(:,s);

@@ -5,10 +5,9 @@ function pointviewMatrix = chaining(path, threshold)
     pointviewMatrix = [];
     % Store points added on the previous image pair
     points_added = [];
-    counter = 0
+    counter = 0;
 
     for i = 1:length(images) - 1
-    % for i = 1:1
         fprintf("Progress: %d/%d image pairs\n", i, length(images) - 1);
         image1 = im2single(imread(strcat(path, images(i).name)));
         image2 = im2single(imread(strcat(path, images(i + 1).name)));
