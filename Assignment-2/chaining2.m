@@ -1,7 +1,4 @@
-function pointviewMatrix = chaining2(path, threshold)    
-    path = './Data/House/';
-    threshold = 5
-    
+function pointviewMatrix = chaining2(path, threshold)
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
@@ -50,7 +47,7 @@ function pointviewMatrix = chaining2(path, threshold)
     
 
     %%
-    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix));
+    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
