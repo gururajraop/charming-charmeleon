@@ -1,7 +1,7 @@
 function [] = matching(image1, image2)
     
     % Get the matching points
-    [matches, f1, f2, ~, ~] = keypoint_matching(image1, image2);
+    [matches, f1, f2, ~, ~] = keypoint_matching(image1, image2, 50);
     
     % Apply RANSAC on the matches to get the transformation
     [f1_new, t_new, ~] = RANSAC(matches, f1, f2);
