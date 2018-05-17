@@ -15,19 +15,10 @@ data_path = './Data/House/';
 
 % save('./Results/point_view_matrix1.mat', 'point_view_matrix1');
 %%
-<<<<<<< HEAD
-% TODO: Get denseBlock from pointviewMatrix, until then use the loaded one
-indices = find(sum(pointviewMatrix2(:,:)~=0) == 96);
-denseBlock = pointviewMatrix2(:, indices);
-denseBlock = denseBlock(1:96, :);
+threshold = 50;
+pointviewMatrix2 = chaining2(data_path, threshold);
 
-% denseBlock = load('pointviewmatrix.txt');
-=======
-% threshold = 50;
-% pointviewMatrix2 = chaining2(data_path, threshold);
->>>>>>> a9f3c06d3878c80292690e82983da6f88afe46d8
-
-% save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
+save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
 
 point_view_matrix = load('pointviewmatrix.txt');
 
