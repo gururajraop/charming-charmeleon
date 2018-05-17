@@ -51,7 +51,7 @@ function [F] = normalized_eight_point_RANSAC(f1, f2, threshold, iterations)
     end
     
     % Recompute F using best inliers
-    f1_best = f1_new(:, best_inliers_index);
-    f2_best = f2_new(:, best_inliers_index);
+    f1_best = f1(:, best_inliers_index);
+    f2_best = f2(:, best_inliers_index);
     F = normalized_eight_point(f1_best, f2_best);
 end

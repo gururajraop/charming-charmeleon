@@ -29,5 +29,7 @@ function [F] = normalized_eight_point(f1, f2, normalize, T1, T2)
     F = reshape(F, 3,3);
     
     % Denormalize the fundamental matrix
-    F = T2' * F' * T1;
+    if normalize
+        F = T2' * F' * T1;
+    end
 end

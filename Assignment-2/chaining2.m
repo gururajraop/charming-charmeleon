@@ -50,9 +50,8 @@ function pointviewMatrix = chaining2(path, threshold)
     
 
     %%
-    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
+    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix));
     figure()
-    size(pointviewMatrix)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
