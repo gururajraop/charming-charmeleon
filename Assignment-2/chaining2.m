@@ -1,5 +1,7 @@
 function pointviewMatrix = chaining2(path, threshold)    
     path = './Data/House/';
+    threshold = 5
+    
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
@@ -8,7 +10,7 @@ function pointviewMatrix = chaining2(path, threshold)
 %     points_added = [];
 %     counter = 0
     
-    keypoints_added = []
+    keypoints_added = [];
 
     for i = 1:length(images) - 1
 %     for i = 1:6
@@ -27,11 +29,12 @@ function pointviewMatrix = chaining2(path, threshold)
 %         index = [];
         
         if i ~= 1
-            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, threshold)
+            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, threshold);
             index_in_pvm = matching_descriptors(1, :);
             index_point = matching_descriptors(2, :);
             pointviewMatrix(i * 2 - 1, index_in_pvm) = f1(1, index_point);
             pointviewMatrix(i * 2, index_in_pvm) = f1(2, index_point);
+            keypoints_added(:, index_in_pvm) = D1(:,index_point);
             f1(:,index_point) = [];
             D1(:,index_point) = [];
         end
@@ -53,5 +56,5 @@ function pointviewMatrix = chaining2(path, threshold)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
-%     axis off
+    axis off
 end

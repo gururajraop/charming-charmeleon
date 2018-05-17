@@ -18,10 +18,10 @@ pointviewMatrix2 = chaining2(data_path, threshold);
 
 %%
 % TODO: Get denseBlock from pointviewMatrix, until then use the loaded one
-% indices = find(sum(pointviewMatrix1(:,:)~=0) == 96);
-% denseBlock = pointviewMatrix1(:, indices);
-% denseBlock = denseBlock(1:96, :);
-% 
+indices = find(sum(pointviewMatrix2(:,:)~=0) == 96);
+denseBlock = pointviewMatrix2(:, indices);
+denseBlock = denseBlock(1:96, :);
+
 % denseBlock = load('pointviewmatrix.txt');
 
 % point_view_matrix = chaining(data_path);
