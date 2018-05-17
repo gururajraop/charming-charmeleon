@@ -13,9 +13,9 @@ function [] = plot_epipolar_lines(image, f, F)
         l = F * p(:,s);
         line = create_line( l, size(image));
         
-        plot(p(1,s), p(2,s), 'o', 'MarkerSize', 10,...
-            'MarkerEdgeColor','b','MarkerFaceColor','r');
         plot(line(1,:), line(2,:), 'g-', 'LineWidth', 1.2);
+        plot(p(1,s), p(2,s), 'o', 'MarkerSize', 5,...
+            'MarkerEdgeColor','w','MarkerFaceColor','r');
     end
     
     hold off;
