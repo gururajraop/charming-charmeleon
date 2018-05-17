@@ -8,7 +8,7 @@ function pointviewMatrix = chaining2(path, threshold)
 %     points_added = [];
 %     counter = 0
     
-    keypoints_added = []
+    keypoints_added = [];
 
     for i = 1:length(images) - 1
 %     for i = 1:6
@@ -27,7 +27,7 @@ function pointviewMatrix = chaining2(path, threshold)
 %         index = [];
         
         if i ~= 1
-            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, threshold)
+            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, threshold);
             index_in_pvm = matching_descriptors(1, :);
             index_point = matching_descriptors(2, :);
             pointviewMatrix(i * 2 - 1, index_in_pvm) = f1(1, index_point);
@@ -47,9 +47,8 @@ function pointviewMatrix = chaining2(path, threshold)
     
 
     %%
-    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
+    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix));
     figure()
-    size(pointviewMatrix)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)

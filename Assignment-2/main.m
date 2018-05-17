@@ -6,17 +6,17 @@ close all
 data_path = './Data/House/';
 
 %% matching process
-image_matching(data_path);
+% image_matching(data_path);
 
 %% Chaining
 % Set threshold for ubcmatch
-threshold = 50;
-pointviewMatrix1 = chaining(data_path, threshold);
+% threshold = 50;
+% pointviewMatrix1 = chaining(data_path, threshold);
 
 % save('./Results/point_view_matrix1.mat', 'point_view_matrix1');
 %%
-threshold = 50;
-pointviewMatrix2 = chaining2(data_path, threshold);
+% threshold = 50;
+% pointviewMatrix2 = chaining2(data_path, threshold);
 
 % save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
 
