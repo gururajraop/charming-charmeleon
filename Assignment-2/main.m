@@ -36,7 +36,8 @@ sfm(point_view_matrix, true)
 
 %% Build 3D structure from point view matrix
 sample_size = 200;
-step_size = 4;
+step_size = 2;
 % load('./Results/point_view_matrix1.mat');
-% plot_3D_structure(point_view_matrix, step_size, sample_size);
+% plot_single_dense(point_view_matrix);
+plot_iterative(point_view_matrix, step_size, sample_size);
 
