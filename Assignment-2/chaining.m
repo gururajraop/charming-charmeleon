@@ -1,6 +1,6 @@
-function pointviewMatrix = chaining(path)
+function pointviewMatrix = chaining(path, threshold)
     images = dir(strcat(path, '\', '\*.png'));
-%     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
+    images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
     pointviewMatrix = [];
     % Store points added on the previous image pair
@@ -12,7 +12,7 @@ function pointviewMatrix = chaining(path)
         fprintf("Progress: %d/%d image pairs\n", i, length(images) - 1);
         image1 = im2single(imread(strcat(path, images(i).name)));
         image2 = im2single(imread(strcat(path, images(i + 1).name)));
-        [matches, f1, f2, ~, ~] = keypoint_matching(image1, image2);
+        [matches, f1, f2, ~, ~] = keypoint_matching(image1, image2, threshold);
 
         % Store points added during the iteration
         new_points = [];
@@ -23,13 +23,17 @@ function pointviewMatrix = chaining(path)
             point1 = f1(1:2, matches_index(1));
             point2 = f2(1:2, matches_index(2));
 
-            if j ~= 1 && isempty(find(new_points(1, :) == matches_index(2))) == 0
-                counter = counter + 1;
-                continue
-            end
+%             if j ~= 1 && isempty(find(new_points(1, :) == matches_index(2))) == 0
+%                 counter = counter + 1;
+%                 continue
+%             end
 
             if i ~= 1
                 index = find(points_added(1, :) == matches_index(1));
+                if length(index) > 1
+                    counter = counter + 1;
+                    index = [];
+                end
             end
 
             if isempty(index) == 0
@@ -52,11 +56,13 @@ function pointviewMatrix = chaining(path)
     fprintf("Two points matched to a single point: %d times\n", counter);
     
 
-    %%
+    %% 
+    
+    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
     size(pointviewMatrix)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
-%     axis off
+    axis off
 end

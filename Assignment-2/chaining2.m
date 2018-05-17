@@ -1,4 +1,4 @@
-function pointviewMatrix = chaining2(path)    
+function pointviewMatrix = chaining2(path, threshold)    
     path = './Data/House/';
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
@@ -15,7 +15,7 @@ function pointviewMatrix = chaining2(path)
         fprintf("Progress: %d/%d image pairs\n", i, length(images) - 1);
         image1 = im2single(imread(strcat(path, images(i).name)));
         image2 = im2single(imread(strcat(path, images(i + 1).name)));
-        [matches, f1, f2, D1, D2] = keypoint_matching(image1, image2);
+        [matches, f1, f2, D1, D2] = keypoint_matching(image1, image2, threshold);
 
         f1 = f1(:, matches(1, :));
         f2 = f2(:, matches(2, :));
@@ -27,15 +27,13 @@ function pointviewMatrix = chaining2(path)
 %         index = [];
         
         if i ~= 1
-            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, 5.0);
+            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, threshold)
             index_in_pvm = matching_descriptors(1, :);
             index_point = matching_descriptors(2, :);
             pointviewMatrix(i * 2 - 1, index_in_pvm) = f1(1, index_point);
             pointviewMatrix(i * 2, index_in_pvm) = f1(2, index_point);
             f1(:,index_point) = [];
-            size(D1)
             D1(:,index_point) = [];
-            size(D1)
         end
         
         added_matrix = zeros(size(images,1) * 2 - 2 , size(f1, 2));
@@ -49,9 +47,11 @@ function pointviewMatrix = chaining2(path)
     
 
     %%
+    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
     size(pointviewMatrix)
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
-    axis offend
+%     axis off
+end
