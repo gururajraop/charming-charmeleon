@@ -10,15 +10,15 @@ data_path = './Data/House/';
 
 %% Chaining
 % Set threshold for ubcmatch
-% threshold = 50;
-% pointviewMatrix1 = chaining(data_path, threshold);
+threshold = 5;
+pointviewMatrix1 = chaining(data_path, threshold);
 
 % save('./Results/point_view_matrix1.mat', 'point_view_matrix1');
 %%
-% threshold = 50;
-% pointviewMatrix2 = chaining2(data_path, threshold);
+threshold = 5;
+pointviewMatrix2 = chaining2(data_path, threshold);
 
-% save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
+save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
 
 point_view_matrix = load('pointviewmatrix.txt');
 

@@ -1,5 +1,4 @@
-function pointviewMatrix = chaining2(path, threshold)    
-    path = './Data/House/';
+function pointviewMatrix = chaining2(path, threshold)
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
@@ -32,6 +31,7 @@ function pointviewMatrix = chaining2(path, threshold)
             index_point = matching_descriptors(2, :);
             pointviewMatrix(i * 2 - 1, index_in_pvm) = f1(1, index_point);
             pointviewMatrix(i * 2, index_in_pvm) = f1(2, index_point);
+            keypoints_added(:, index_in_pvm) = D1(:,index_point);
             f1(:,index_point) = [];
             D1(:,index_point) = [];
         end
@@ -47,10 +47,10 @@ function pointviewMatrix = chaining2(path, threshold)
     
 
     %%
-    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix));
+    density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
     pointviewMatrix_inverted = double(~pointviewMatrix);
     imagesc(pointviewMatrix_inverted)
     colormap(gray)
-%     axis off
+    axis off
 end
