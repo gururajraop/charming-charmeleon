@@ -1,13 +1,13 @@
 function pointviewMatrix = chaining2(path, threshold)
+    data_path = './Data/House/';
+    threshold  = 2;
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
-    pointviewMatrix = [];
-    % Store points added on the previous image pair
-%     points_added = [];
-%     counter = 0
-    
+    pointviewMatrix = [];   
     keypoints_added = [];
+    counter = 0;
+    double_matches = [];
 
     for i = 1:length(images) - 1
 %     for i = 1:6
@@ -20,15 +20,17 @@ function pointviewMatrix = chaining2(path, threshold)
         f2 = f2(:, matches(2, :));
         D1 = D1(:, matches(1, :));
         D2 = D2(:, matches(2, :));
-        
-        % Store points added during the iteration
-%         new_points = [];
-%         index = [];
-        
+
         if i ~= 1
-            [matching_descriptors, scores] = vl_ubcmatch(keypoints_added, D1, threshold);
-            index_in_pvm = matching_descriptors(1, :);
-            index_point = matching_descriptors(2, :);
+            [matching_descriptors, scores] = vl_ubcmatch(D1, keypoints_added, threshold);
+            
+            matches_im2 = matching_descriptors(2, :);
+            unique_matches = unique(matches_im2);
+            double_matches = unique_matches(1<histc(matches_im2,unique(matches_im2)));
+            matching_descriptors(:, find(ismember(matches_im2 , double_matches))) = [];
+            
+            index_point = matching_descriptors(1, :);
+            index_in_pvm = matching_descriptors(2, :);
             pointviewMatrix(i * 2 - 1, index_in_pvm) = f1(1, index_point);
             pointviewMatrix(i * 2, index_in_pvm) = f1(2, index_point);
             keypoints_added(:, index_in_pvm) = D1(:,index_point);
@@ -41,6 +43,7 @@ function pointviewMatrix = chaining2(path, threshold)
         added_matrix(i * 2, :) = f1(2, :);
         pointviewMatrix = [pointviewMatrix added_matrix];
         keypoints_added = [keypoints_added, D1];
+        counter = counter + size(double_matches, 2);
     end
     
 %     fprintf("Two points matched to a single point: %d times\n", counter);
