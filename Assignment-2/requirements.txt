@@ -1,0 +1,2 @@
+External dependencies:
+VLFeat library (vlfeat-0.9.21)
