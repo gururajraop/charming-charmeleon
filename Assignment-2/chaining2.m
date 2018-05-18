@@ -1,3 +1,4 @@
+% SIFT descriptor chaining method.
 function pointviewMatrix = chaining2(path, threshold)
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
@@ -17,7 +18,9 @@ function pointviewMatrix = chaining2(path, threshold)
         f2 = f2(:, matches(2, :));
         D1 = D1(:, matches(1, :));
         D2 = D2(:, matches(2, :));
-
+        
+        % Match the entire set of matches found in the pair to the set of
+        % previously added keypoints
         if i ~= 1
             [matching_descriptors, scores] = vl_ubcmatch(D1, keypoints_added, threshold);
             
@@ -34,7 +37,7 @@ function pointviewMatrix = chaining2(path, threshold)
             f1(:,index_point) = [];
             D1(:,index_point) = [];
         end
-        
+        % Append any new keypoints to PVM
         added_matrix = zeros(size(images,1) * 2 - 2 , size(f1, 2));
         added_matrix(i * 2 - 1, :) = f1(1, :);
         added_matrix(i * 2, :) = f1(2, :);
@@ -45,7 +48,6 @@ function pointviewMatrix = chaining2(path, threshold)
     
     fprintf("Two points matched to a single point: %d times\n", counter);
     
-
     %% Visualize results and calculate density
     density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
