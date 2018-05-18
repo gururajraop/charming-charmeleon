@@ -17,17 +17,20 @@ function [] = matching(image1, image2)
     disp('Basic eight point algorithm');
     F1 = eight_point(f1_foreground, f1_foreground_new);
     check_correctness(F1, f1_foreground, f1_foreground_new);
-    plot_epipolar_lines(image2, f1_foreground, F1);
+    Title = 'Epipolar lines using basic eight point algorithm';
+    plot_epipolar_lines(image2, f1_foreground, F1, Title);
     
     disp('Normalized eight point algorithm');
     F2 = normalized_eight_point(f1_foreground, f1_foreground_new);
     check_correctness(F2, f1_foreground, f1_foreground_new);
-    plot_epipolar_lines(image2, f1_foreground, F2);
+    Title = 'Epipolar lines using normalized eight point algorithm';
+    plot_epipolar_lines(image2, f1_foreground, F2, Title);
 
     disp('Normalized eight point algorithm using RANSAC');
     F3 = normalized_eight_point_RANSAC(f1_foreground, f1_foreground_new, 0.01, 1000);
     check_correctness(F3, f1_foreground, f1_foreground_new);
-    plot_epipolar_lines(image2, f1_foreground, F3);
+    Title = 'Epipolar lines using basic normalized eight point algorithm using RANSAC';
+    plot_epipolar_lines(image2, f1_foreground, F3, Title);
 end
 
 function [] = check_correctness(F, f1, f2)

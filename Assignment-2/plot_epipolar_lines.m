@@ -1,4 +1,4 @@
-function [] = plot_epipolar_lines(image, f, F)
+function [] = plot_epipolar_lines(image, f, F, Title)
     figure()
     imshow(image);
     
@@ -19,5 +19,5 @@ function [] = plot_epipolar_lines(image, f, F)
     end
     
     hold off;
-    title('Epipolar lines based on the fundamental matrix');
+    title(Title);
 end

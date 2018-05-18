@@ -1,7 +1,7 @@
-function [] = plot_single_dense(pvm)
+function [] = plot_single_dense(pvm, affine)
     block = get_dense_block(pvm);
 
-    [~, S] = sfm(block, false, false);
+    [~, S] = sfm(block, false, affine);
     S(3, :) = S(3, :) * 10;
     
     figure()
