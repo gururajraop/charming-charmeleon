@@ -1,6 +1,6 @@
 function [pointviewMatrix, density, counter, counter2] = chaining3(path, threshold, distance_threshold)
     images = dir(strcat(path, '\', '\*.png'));
-    images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
+%     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
     pointviewMatrix = [];
     % Store points added on the previous image pair
