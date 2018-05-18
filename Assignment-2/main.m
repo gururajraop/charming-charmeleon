@@ -30,15 +30,15 @@ data_path = './Data/House/';
 % save('./Results/point_view_matrix3.mat', 'point_view_matrix3');
 
 %% Provided PVM
-% point_view_matrix = load('pointviewmatrix.txt');
+point_view_matrix = load('pointviewmatrix.txt');
 
 %% Structure from motion
 % [M, S] = sfm(point_view_matrix, true);
 
 %% Build 3D structure from point view matrix
-sample_size = 200;
-step_size = 2;
+sample_size = 1000;
+step_size = 4;
 load('./Results/point_view_matrix3.mat');
-plot_single_dense(point_view_matrix3);
-% plot_iterative(point_view_matrix, step_size, sample_size);
+% plot_single_dense(point_view_matrix3);
+plot_iterative(point_view_matrix, step_size, sample_size);
 
