@@ -9,20 +9,31 @@ data_path = './Data/House/';
 image_matching(data_path);
 
 %% Chaining
-% Set threshold for ubcmatch
-% threshold = 5;
-% pointviewMatrix1 = chaining(data_path, threshold);
+
+% Set threshold for vl_ubcmatch
+threshold = 5;
+
+% Baseline method
+pointviewMatrix1 = chaining(data_path, threshold);
 
 % save('./Results/point_view_matrix1.mat', 'point_view_matrix1');
 
-% threshold = 5;
-% pointviewMatrix2 = chaining2(data_path, threshold);
-% 
-% save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
+% Alternative method matching SIFT descriptors across views
+threshold = 5;
+pointviewMatrix2 = chaining2(data_path, threshold);
 
+% Improved baseline, region-based matching and recovering double matches
+threshold = 8;
+distance_threshold = 30;
+pointviewMatrix3 = chaining3(data_path, threshold, distance_threshold);
+
+save('./Results/point_view_matrix2.mat', 'point_view_matrix2');
+
+%% Provided PVM
 point_view_matrix = load('pointviewmatrix.txt');
 
 %% Structure from motion
+[M, S] = sfm(point_view_matrix, true);
 
 %% Build 3D structure from point view matrix
 sample_size = 200;

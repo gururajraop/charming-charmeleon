@@ -16,22 +16,21 @@ function pointviewMatrix = chaining(path, threshold)
         % Store points added during the iteration
         new_points = [];
         index = [];
-
+        
+        matches_im2 = matches(2, :);
+        unique_matches = unique(matches_im2);
+        double_matches = unique_matches(1<histc(matches_im2,unique(matches_im2)));
+        matches(:, find(ismember(matches_im2 , double_matches))) = [];
+        
         for j = 1:size(matches, 2)
             matches_index = matches(1:2, j);
             point1 = f1(1:2, matches_index(1));
             point2 = f2(1:2, matches_index(2));
 
-%             if j ~= 1 && isempty(find(new_points(1, :) == matches_index(2))) == 0
-%                 counter = counter + 1;
-%                 continue
-%             end
-
             if i ~= 1
                 index = find(points_added(1, :) == matches_index(1));
-                if length(index) > 1
-                    counter = counter + 1;
-                    index = [];
+                if size(index, 2) > 1
+                    c = size(index)
                 end
             end
 
@@ -50,13 +49,13 @@ function pointviewMatrix = chaining(path, threshold)
             end         
         end
         points_added = new_points;
+        counter = counter + size(double_matches, 2);
     end
     
     fprintf("Two points matched to a single point: %d times\n", counter);
     
 
-    %% 
-    
+    %% Visualize results and calculate density
     density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
     pointviewMatrix_inverted = double(~pointviewMatrix);
