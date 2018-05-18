@@ -37,8 +37,8 @@ point_view_matrix = load('pointviewmatrix.txt');
 
 %% Build 3D structure from point view matrix
 sample_size = 1000;
-step_size = 4;
+step_size = 5;
 load('./Results/point_view_matrix3.mat');
-% plot_single_dense(point_view_matrix3);
+% plot_single_dense(point_view_matrix);
 plot_iterative(point_view_matrix, step_size, sample_size);
 

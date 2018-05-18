@@ -1,4 +1,7 @@
-function [M, S] = sfm(block, visualize)
+function [M, S] = sfm(block, visualize, affine)
+    if nargin == 2
+        affine = false;
+    end
     % Center each view in the dense block
     block = block - mean(block, 2);
 
@@ -13,6 +16,15 @@ function [M, S] = sfm(block, visualize)
     % Factorize into M and S
     M = U * sqrtm(W);
     S = sqrtm(W) * V';
+    
+    % Affine ambiguity removal
+    if affine
+        MInverse = pinv(M);
+        L = mldivide(M, transpose(MInverse));
+        C = chol(L, 'lower');
+        M = M * C;
+        S = mldivide(C, S);
+    end
 
     % Visualize
     if visualize
