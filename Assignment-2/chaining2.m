@@ -1,6 +1,8 @@
 % SIFT descriptor chaining method.
 function pointviewMatrix = chaining2(path, threshold)
     images = dir(strcat(path, '\', '\*.png'));
+
+    % commet this line for stitching
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
     pointviewMatrix = [];   

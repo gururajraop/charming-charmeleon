@@ -1,6 +1,8 @@
 % Improved chaining method
 function [pointviewMatrix, density, counter, counter2] = chaining3(path, threshold, distance_threshold)
     images = dir(strcat(path, '\', '\*.png'));
+    
+    % commet this line for stitching
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
     
     pointviewMatrix = [];
