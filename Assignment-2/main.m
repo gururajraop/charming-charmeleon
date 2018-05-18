@@ -18,7 +18,7 @@ pointviewMatrix1 = chaining(data_path, threshold);
 % save('./Results/point_view_matrix1.mat', 'point_view_matrix1');
 %% 
 % Alternative method matching SIFT descriptors across views
-threshold = 5;
+threshold = 2;
 pointviewMatrix2 = chaining2(data_path, threshold);
 
 %%

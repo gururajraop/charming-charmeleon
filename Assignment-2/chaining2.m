@@ -1,6 +1,4 @@
 function pointviewMatrix = chaining2(path, threshold)
-    data_path = './Data/House/';
-    threshold  = 2;
     images = dir(strcat(path, '\', '\*.png'));
     images = [images; dir(strcat(path, '\', '\frame00000001.png'))];
 
@@ -10,7 +8,6 @@ function pointviewMatrix = chaining2(path, threshold)
     double_matches = [];
 
     for i = 1:length(images) - 1
-%     for i = 1:6
         fprintf("Progress: %d/%d image pairs\n", i, length(images) - 1);
         image1 = im2single(imread(strcat(path, images(i).name)));
         image2 = im2single(imread(strcat(path, images(i + 1).name)));
@@ -46,10 +43,10 @@ function pointviewMatrix = chaining2(path, threshold)
         counter = counter + size(double_matches, 2);
     end
     
-%     fprintf("Two points matched to a single point: %d times\n", counter);
+    fprintf("Two points matched to a single point: %d times\n", counter);
     
 
-    %%
+    %% Visualize results and calculate density
     density = nnz(pointviewMatrix)/prod(size(pointviewMatrix))
     figure()
     pointviewMatrix_inverted = double(~pointviewMatrix);
