@@ -85,6 +85,7 @@ typename pcl::PointCloud<T>::Ptr transformPointCloudNormals(typename pcl::PointC
 pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]) {
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr modelCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
 
+    const float maxDepth = 0.5;
     for (int i = 0; i < 8; i++) {
         std::cout << boost::format("Merging frame %d") % i << std::endl;
 
@@ -93,8 +94,23 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
         double focalLength = frame.focal_length_;
         const Eigen::Matrix4f cameraPose = frame.getEigenTransform();
 
-        // TODO(Student): Merge the i-th frame using predicted camera pose
-        // to the global point cloud. ~ 20 lines.
+	// Depth to point cloud conversion using depth image and focal length
+	pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = mat2IntegralPointCloud(depthImage, focalLength, maxDepth);
+
+	// Compute the normals for the point cloud
+	pcl::PointCloud<pcl::PointNormal>::Ptr PCNormal = computeNormals(pointCloud);
+
+	// Transform the point cloud normals
+	pcl::PointCloud<pcl::PointNormal>::Ptr transformedPCNormals = transformPointCloudNormals<pcl::PointNormal>(PCNormal, cameraPose);
+
+	// TODO: Convert the PointNormal type to PointXYZRGB
+	pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr XYZRGBNormals(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+	
+
+	// TODO: Concat the point clouds
+	*modelCloud += *XYZRGBNormals;
+
+	std::cout << boost::format("Finished merging frame %d") % i << std::endl;
     }
 
     return modelCloud;
