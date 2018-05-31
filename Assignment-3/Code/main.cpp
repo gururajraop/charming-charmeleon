@@ -82,8 +82,10 @@ typename pcl::PointCloud<T>::Ptr transformPointCloudNormals(typename pcl::PointC
     return transformed_cloud;
 }
 
+
 pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]) {
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr modelCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr transformedCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
 
     const float maxDepth = 0.5;
     for (int i = 0; i < 8; i++) {
@@ -103,16 +105,16 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
 	// Transform the point cloud normals
 	pcl::PointCloud<pcl::PointNormal>::Ptr transformedPCNormals = transformPointCloudNormals<pcl::PointNormal>(PCNormal, cameraPose);
 
-	// TODO: Convert the PointNormal type to PointXYZRGB
-	pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr XYZRGBNormals(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-
-	// TODO: Remove NAN values if any
+	// Remove NAN values if any
 	std::vector<int> indices;
-	pcl::removeNaNFromPointCloud(*XYZRGBNormals, *XYZRGBNormals, indices);
-	pcl::removeNaNNormalsFromPointCloud(*XYZRGBNormals, *XYZRGBNormals, indices);
+	pcl::removeNaNFromPointCloud(*transformedPCNormals, *transformedPCNormals, indices);
+	pcl::removeNaNNormalsFromPointCloud(*transformedPCNormals, *transformedPCNormals, indices);
 
-	// TODO: Concat the point clouds
-	*modelCloud += *XYZRGBNormals;
+	// Convert the point clouds from PointNormal to PointXYZRGBNormal
+	pcl::copyPointCloud(*transformedPCNormals, *transformedCloud);
+
+	// Concat the point clouds
+	pcl::concatenateFields(*modelCloud, *transformedCloud, *modelCloud);
 
 	std::cout << boost::format("Finished merging frame %d") % i << std::endl;
     }
@@ -149,19 +151,19 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
     pcl::PolygonMesh triangles;
     switch (method) {
         case PoissonSurfaceReconstruction:
-            pcl::Poisson<pcl::PointNormal> poisson;
+            //pcl::Poisson<pcl::PointNormal> poisson;
             // Deeper tree is smoother result but slower
-            poisson.setDepth(9);
-            poisson.setInputCloud(pointCloud);
-            poisson.reconstruct(triangles);
+            //poisson.setDepth(9);
+            //poisson.setInputCloud(pointCloud);
+            //poisson.reconstruct(triangles);
             // TODO(Student): Call Poisson Surface Reconstruction. ~ 5 lines.
             break;
         case MarchingCubes:
-            pcl::MarchingCubesRBF<pcl::PointNormal> mc;
-            mc.setInputCloud(pointCloud);
+            //pcl::MarchingCubes<pcl::PointNormal> mc;
+            //mc.setInputCloud(pointCloud);
             // Possible memory errors, set to 100 for results (Piazza)
-            mc.setGridResolution(100);
-            mc.reconstruct(triangles);
+            //mc.setGridResolution(100);
+            //mc.reconstruct(triangles);
             // TODO(Student): Call Marching Cubes Surface Reconstruction. ~ 5 lines.
             break;
     }
