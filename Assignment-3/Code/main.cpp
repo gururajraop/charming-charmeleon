@@ -125,7 +125,10 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
 
 pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame3D frames[]) {
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr modelCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr convertedCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr RGBNCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
 
+    const float maxDepth = 0.5;
     for (int i = 0; i < 8; i++) {
         std::cout << boost::format("Merging frame %d") % i << std::endl;
 
@@ -134,7 +137,20 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
         double focalLength = frame.focal_length_;
         const Eigen::Matrix4f cameraPose = frame.getEigenTransform();
 
-        // TODO(Student): The same as mergingPointClouds but now with texturing. ~ 50 lines.
+	// Depth to point cloud conversion using depth image and focal length
+	pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = mat2IntegralPointCloud(depthImage, focalLength, maxDepth);
+	pcl::copyPointCloud(*pointCloud, *convertedCloud);
+
+	// Transform the point cloud
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformedPC = transformPointCloud(convertedCloud, cameraPose);
+
+	// Convert the point clouds from PointNormal to PointXYZRGBNormal
+	pcl::copyPointCloud(*transformedPC, *RGBNCloud);
+
+	// Concat the point clouds
+	pcl::concatenateFields(*modelCloud, *RGBNCloud, *modelCloud);
+
+	std::cout << boost::format("Finished merging frame %d") % i << std::endl;
     }
 
     return modelCloud;
