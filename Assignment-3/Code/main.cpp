@@ -105,7 +105,11 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
 
 	// TODO: Convert the PointNormal type to PointXYZRGB
 	pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr XYZRGBNormals(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-	
+
+	// TODO: Remove NAN values if any
+	std::vector<int> indices;
+	pcl::removeNaNFromPointCloud(*XYZRGBNormals, *XYZRGBNormals, indices);
+	pcl::removeNaNNormalsFromPointCloud(*XYZRGBNormals, *XYZRGBNormals, indices);
 
 	// TODO: Concat the point clouds
 	*modelCloud += *XYZRGBNormals;
