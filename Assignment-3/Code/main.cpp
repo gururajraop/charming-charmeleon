@@ -149,9 +149,19 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
     pcl::PolygonMesh triangles;
     switch (method) {
         case PoissonSurfaceReconstruction:
+            pcl::Poisson<pcl::PointNormal> poisson;
+            // Deeper tree is smoother result but slower
+            poisson.setDepth(9);
+            poisson.setInputCloud(pointCloud);
+            poisson.reconstruct(triangles);
             // TODO(Student): Call Poisson Surface Reconstruction. ~ 5 lines.
             break;
         case MarchingCubes:
+            pcl::MarchingCubesRBF<pcl::PointNormal> mc;
+            mc.setInputCloud(pointCloud);
+            // Possible memory errors, set to 100 for results (Piazza)
+            mc.setGridResolution(100);
+            mc.reconstruct(triangles);
             // TODO(Student): Call Marching Cubes Surface Reconstruction. ~ 5 lines.
             break;
     }
