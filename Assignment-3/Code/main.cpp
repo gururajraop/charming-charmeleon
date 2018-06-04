@@ -184,11 +184,11 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
             poisson.reconstruct(triangles);
             break;
         case MarchingCubes:
-            //pcl::MarchingCubes<pcl::PointXYZRGBNormal> mc;
-            //mc.setInputCloud(pointCloud);
+            pcl::MarchingCubesHoppe<pcl::PointXYZRGBNormal> mc;
+            mc.setInputCloud(pointCloud);
             // Possible memory errors, set to 100 for results (Piazza)
-            //mc.setGridResolution(100);
-            //mc.reconstruct(triangles);
+            mc.setGridResolution(100, 100, 100);
+            mc.reconstruct(triangles);
             break;
     }
     return triangles;
