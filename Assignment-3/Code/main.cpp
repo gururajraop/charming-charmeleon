@@ -109,6 +109,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
 	std::vector<int> indices;
 	pcl::removeNaNFromPointCloud(*transformedPCNormals, *transformedPCNormals, indices);
 	pcl::removeNaNNormalsFromPointCloud(*transformedPCNormals, *transformedPCNormals, indices);
+	//pcl::removeNaNNormalsFromPointCloud(*modelCloud, *modelCloud, indices);
 
 	// Convert the point clouds from PointNormal to PointXYZRGBNormal
 	pcl::copyPointCloud(*transformedPCNormals, *transformedCloud);
@@ -167,10 +168,19 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
     pcl::PolygonMesh triangles;
     switch (method) {
         case PoissonSurfaceReconstruction:
-            pcl::Poisson<pcl::PointXYZRGBNormal> poisson;
-            // Deeper tree is smoother result but slower
-            poisson.setDepth(9);
-            poisson.setInputCloud(pointCloud);
+	    // Convert the provided point cloud from PointXYZRGBNormal to PointNormal type
+	    pcl::PointCloud<pcl::PointNormal>::Ptr pointCloudNormal(new pcl::PointCloud<pcl::PointNormal>);
+	    pcl::copyPointCloud(*pointCloud, *pointCloudNormal);
+	   
+	    // Create the poisson object and set the parameters 
+            pcl::Poisson<pcl::PointNormal> poisson;
+            poisson.setDepth(8);
+	    poisson.setSolverDivide(8);
+	    poisson.setIsoDivide(8);
+	    poisson.setPointWeight(4.0f);
+            poisson.setInputCloud(pointCloudNormal);
+
+	    // Reconstruct the mesh using the provided point clouds
             poisson.reconstruct(triangles);
             break;
         case MarchingCubes:
@@ -193,6 +203,7 @@ int main(int argc, char *argv[]) {
     }
 
     const CreateMeshMethod reconMode = static_cast<CreateMeshMethod>(std::stoi(argv[2]));
+    std::cout<<"Mesh reconstruction method: "<<reconMode<<std::endl;
 
     // Loading 3D frames
     Frame3D frames[8];
@@ -204,6 +215,7 @@ int main(int argc, char *argv[]) {
     pcl::PolygonMesh triangles;
 
     if (argv[3][0] == 't') {
+	std::cout<<"Merging point clouds with texture support"<<std::endl;
         // SECTION 4: Coloring 3D Model
         // Create one point cloud by merging all frames with texture using
         // the rgb images from the frames
@@ -213,6 +225,7 @@ int main(int argc, char *argv[]) {
         // Poisson Surface or Marching Cubes
         triangles = createMesh(texturedCloud, reconMode);
     } else {
+	std::cout<<"Merging point clouds without texture support"<<std::endl;
         // SECTION 3: 3D Meshing & Watertighting
 
         // Create one point cloud by merging all frames with texture using
