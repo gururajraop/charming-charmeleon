@@ -105,20 +105,20 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
 	// Transform the point cloud normals
 	pcl::PointCloud<pcl::PointNormal>::Ptr transformedPCNormals = transformPointCloudNormals<pcl::PointNormal>(PCNormal, cameraPose);
 
-	// Remove NAN values if any
-	std::vector<int> indices;
-	pcl::removeNaNFromPointCloud(*transformedPCNormals, *transformedPCNormals, indices);
-	pcl::removeNaNNormalsFromPointCloud(*transformedPCNormals, *transformedPCNormals, indices);
-	//pcl::removeNaNNormalsFromPointCloud(*modelCloud, *modelCloud, indices);
-
 	// Convert the point clouds from PointNormal to PointXYZRGBNormal
 	pcl::copyPointCloud(*transformedPCNormals, *transformedCloud);
 
 	// Concat the point clouds
-	pcl::concatenateFields(*modelCloud, *transformedCloud, *modelCloud);
+	*modelCloud += *transformedCloud;
 
 	std::cout << boost::format("Finished merging frame %d") % i << std::endl;
     }
+    // Remove NAN values if any
+    pcl::PassThrough<pcl::PointXYZRGBNormal> filter;
+    filter.setInputCloud(modelCloud);
+    filter.filter(*modelCloud);
+
+    std::cout << boost::format("Merged point cloud contains %d points") % modelCloud->size() << std::endl;
 
     return modelCloud;
 }
