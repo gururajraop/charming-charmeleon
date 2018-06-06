@@ -87,7 +87,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr modelCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr transformedCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
 
-    const float maxDepth = 0.5;
+    const float maxDepth = 1.5;
     for (int i = 0; i < 8; i++) {
         std::cout << boost::format("Merging frame %d") % i << std::endl;
 
@@ -252,6 +252,7 @@ int main(int argc, char *argv[]) {
     viewer->addPolygonMesh(triangles, "meshes", 0);
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
+    viewer->setCameraPosition(0.3,0.3,-1,0.3,0.3,0.1,0,-1,0);
 
     // Keep viewer open
     while (!viewer->wasStopped()) {
