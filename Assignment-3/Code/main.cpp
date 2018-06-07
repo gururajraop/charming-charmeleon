@@ -172,12 +172,14 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXY
 	int V_coor = std::floor(frame.rgb_image_.rows * V);
 
 	// Extract the RGB values from the rgb images at position UV coordinates
-	cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
+	if (U > 0 && U < 1 && V > 0 && V < 1) {
+	    cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
 
-	// Assign the color to cloud point
-	destination->points[polygon.vertices[i]].r = rgb[2];
-	destination->points[polygon.vertices[i]].g = rgb[1];
-	destination->points[polygon.vertices[i]].b = rgb[0];
+	    // Assign the color to cloud point
+	    destination->points[polygon.vertices[i]].r = rgb[2];
+	    destination->points[polygon.vertices[i]].g = rgb[1];
+	    destination->points[polygon.vertices[i]].b = rgb[0];
+	}
     }
 
     return destination;
@@ -233,11 +235,10 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
     pcl::copyPointCloud(*pointCloud, *pointCloudNormal);
 
     switch (method) {
-        case PoissonSurfaceReconstruction:
-            {
+        case PoissonSurfaceReconstruction: {
 	    // Create the poisson object and set the parameters 
             pcl::Poisson<pcl::PointNormal> poisson;
-            poisson.setDepth(10);
+            poisson.setDepth(6);
 	    // poisson.setSolverDivide(8);
 	    // poisson.setIsoDivide(8);
 	    // poisson.setPointWeight(4.0f);
@@ -246,8 +247,8 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
 	    // Reconstruct the mesh using the provided point clouds
             poisson.reconstruct(triangles);
             break;
-	    }
-        case MarchingCubes:                              
+	}
+        case MarchingCubes: {
             pcl::MarchingCubesHoppe<pcl::PointNormal> mc;
 	    mc.setInputCloud(pointCloudNormal);
 
@@ -255,6 +256,7 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
             mc.setGridResolution(100, 100, 100);
             mc.reconstruct(triangles);
             break;
+	}
     }
     return triangles;
 }
