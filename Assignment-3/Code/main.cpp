@@ -123,36 +123,97 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
     return modelCloud;
 }
 
+bool checkPointOccluded(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, pcl::Vertices polygon) {
+    pcl::PointXYZ pointXYZ = pcl::PointXYZ();
 
-pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame3D frames[]) {
+    // Create an OCTree and texture mapping to check the polygon visibility
+    const double resolution = 0.05f;
+    pcl::octree::OctreePointCloudSearch<pcl::PointXYZRGB>::Ptr ocTree(new pcl::octree::OctreePointCloudSearch<pcl::PointXYZRGB>(resolution));
+    pcl::TextureMapping<pcl::PointXYZRGB> textureMapping;
+
+    // Check the point of every vertex for visibility wrt the camera/cloud
+    for (size_t i=0; i< polygon.vertices.size(); ++i) {
+	// Get the coordinated of the vertices using the point cloud
+	pointXYZ.x = (*cloud)[polygon.vertices[i]].x;
+	pointXYZ.y = (*cloud)[polygon.vertices[i]].y;
+	pointXYZ.z = (*cloud)[polygon.vertices[i]].z;
+
+	// If any of the vertices are occluded, then the polygon is occluded. Hence, return true
+	if(textureMapping.isPointOccluded(pointXYZ, ocTree)) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXYZRGB>::Ptr source,
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr destination,
+		pcl::Vertices polygon, Frame3D frame) {
+    pcl::PointXYZRGB point = pcl::PointXYZRGB();
+    for (size_t i=0; i<polygon.vertices.size(); ++i) {
+	point = source->points[polygon.vertices[i]];
+
+	// Get the image size and focal length from the frame
+	int height = frame.depth_image_.size().height;
+	int width = frame.depth_image_.size().width;
+	float focalLength = frame.focal_length_;
+
+	// Caclulate the UV coordinates
+	float U = (focalLength * point.x / point.z) + width;
+	float V = (focalLength * point.y / point.z) + height;
+
+	// Normalize them to unit size using the image size
+	U = U / width;
+	V = V / height;
+
+	// Upscale them to the original RGB image size and get the UV coordinates
+	int U_coor = std::floor(frame.rgb_image_.cols * U);
+	int V_coor = std::floor(frame.rgb_image_.rows * V);
+
+	// Extract the RGB values from the rgb images at position UV coordinates
+	cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
+
+	// Assign the color to cloud point
+	destination->points[polygon.vertices[i]].r = rgb[2];
+	destination->points[polygon.vertices[i]].g = rgb[1];
+	destination->points[polygon.vertices[i]].b = rgb[0];
+    }
+
+    return destination;
+}
+
+pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame3D frames[], pcl::PolygonMesh mesh) {
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr modelCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr convertedCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr RGBNCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+
+    // Extract the polygons and the point cloud from the mesh
+    std::vector<pcl::Vertices> polygons = mesh.polygons;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::fromPCLPointCloud2(mesh.cloud, *pointCloud);
 
     const float maxDepth = 0.5;
     for (int i = 0; i < 8; i++) {
-        std::cout << boost::format("Merging frame %d") % i << std::endl;
+        std::cout << boost::format("Merging frame %d with texture/color") % i << std::endl;
 
         Frame3D frame = frames[i];
         cv::Mat depthImage = frame.depth_image_;
         double focalLength = frame.focal_length_;
         const Eigen::Matrix4f cameraPose = frame.getEigenTransform();
 
-	// Depth to point cloud conversion using depth image and focal length
-	pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = mat2IntegralPointCloud(depthImage, focalLength, maxDepth);
-	pcl::copyPointCloud(*pointCloud, *convertedCloud);
+	// Transform point cloud using inverse camera pose
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformedPointCloud = transformPointCloud(pointCloud, cameraPose.inverse());
 
-	// Transform the point cloud
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformedPC = transformPointCloud(convertedCloud, cameraPose);
+	for(size_t i=0; i<polygons.size(); ++i) {
+	    if(!checkPointOccluded(transformedPointCloud, polygons[i])) {
+		// Color the visible polygons
+		pointCloud = colorPolygon(transformedPointCloud, pointCloud, polygons[i], frame);
+	    }
+	}
 
-	// Convert the point clouds from PointNormal to PointXYZRGBNormal
-	pcl::copyPointCloud(*transformedPC, *RGBNCloud);
-
-	// Concat the point clouds
-	pcl::concatenateFields(*modelCloud, *RGBNCloud, *modelCloud);
-
-	std::cout << boost::format("Finished merging frame %d") % i << std::endl;
+	std::cout << boost::format("Finished merging frame %d with texture/color") % i << std::endl;
     }
+
+    // Convert the PointXYZRGB to PointXYZRGBNormal type
+    pcl::copyPointCloud(*pointCloud, *modelCloud);
 
     return modelCloud;
 }
@@ -216,14 +277,20 @@ int main(int argc, char *argv[]) {
 
     if (argv[3][0] == 't') {
 	std::cout<<"Merging point clouds with texture support"<<std::endl;
-        // SECTION 4: Coloring 3D Model
+
         // Create one point cloud by merging all frames with texture using
         // the rgb images from the frames
-        texturedCloud = mergingPointCloudsWithTexture(frames);
+        texturedCloud = mergingPointClouds(frames);
 
         // Create a mesh from the textured cloud using a reconstruction method,
         // Poisson Surface or Marching Cubes
         triangles = createMesh(texturedCloud, reconMode);
+	std::cout<<"Finished mesh creation"<<std::endl;
+
+        // SECTION 4: Coloring 3D Model
+        // Create one point cloud by merging all frames with texture using
+        // the rgb images from the frames
+        texturedCloud = mergingPointCloudsWithTexture(frames, triangles);
     } else {
 	std::cout<<"Merging point clouds without texture support"<<std::endl;
         // SECTION 3: 3D Meshing & Watertighting
