@@ -27,6 +27,7 @@
 #include <opencv2/core/eigen.hpp>
 
 #include "Frame3D/Frame3D.h"
+#include <pcl/search/kdtree.h>
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr mat2IntegralPointCloud(const cv::Mat& depth_mat, const float focal_length, const float max_depth) {
     // This function converts a depth image to a point cloud
@@ -87,7 +88,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr modelCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr transformedCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
 
-    const float maxDepth = 1.5;
+    const float maxDepth = 1.3;
     for (int i = 0; i < 8; i++) {
         std::cout << boost::format("Merging frame %d") % i << std::endl;
 
@@ -129,7 +130,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr convertedCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr RGBNCloud(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
 
-    const float maxDepth = 0.5;
+    const float maxDepth = 1.3; 
     for (int i = 0; i < 8; i++) {
         std::cout << boost::format("Merging frame %d") % i << std::endl;
 
@@ -166,26 +167,29 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
 
     // The variable for the constructed mesh
     pcl::PolygonMesh triangles;
+    // Convert the provided point cloud from PointXYZRGBNormal to PointNormal type
+    pcl::PointCloud<pcl::PointNormal>::Ptr pointCloudNormal(new pcl::PointCloud<pcl::PointNormal>);
+    pcl::copyPointCloud(*pointCloud, *pointCloudNormal);
+
     switch (method) {
         case PoissonSurfaceReconstruction:
-	    // Convert the provided point cloud from PointXYZRGBNormal to PointNormal type
-	    pcl::PointCloud<pcl::PointNormal>::Ptr pointCloudNormal(new pcl::PointCloud<pcl::PointNormal>);
-	    pcl::copyPointCloud(*pointCloud, *pointCloudNormal);
-	   
+            {
 	    // Create the poisson object and set the parameters 
             pcl::Poisson<pcl::PointNormal> poisson;
-            poisson.setDepth(8);
-	    poisson.setSolverDivide(8);
-	    poisson.setIsoDivide(8);
-	    poisson.setPointWeight(4.0f);
+            poisson.setDepth(10);
+	    // poisson.setSolverDivide(8);
+	    // poisson.setIsoDivide(8);
+	    // poisson.setPointWeight(4.0f);
             poisson.setInputCloud(pointCloudNormal);
 
 	    // Reconstruct the mesh using the provided point clouds
             poisson.reconstruct(triangles);
             break;
-        case MarchingCubes:
-            pcl::MarchingCubesHoppe<pcl::PointXYZRGBNormal> mc;
-            mc.setInputCloud(pointCloud);
+	    }
+        case MarchingCubes:                              
+            pcl::MarchingCubesHoppe<pcl::PointNormal> mc;
+	    mc.setInputCloud(pointCloudNormal);
+
             // Possible memory errors, set to 100 for results (Piazza)
             mc.setGridResolution(100, 100, 100);
             mc.reconstruct(triangles);
@@ -245,15 +249,20 @@ int main(int argc, char *argv[]) {
 
     // Add colored point cloud to viewer, because it does not support colored meshes
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGBNormal> rgb(texturedCloud);
-    viewer->addPointCloud<pcl::PointXYZRGBNormal>(texturedCloud, rgb, "cloud");
+    //viewer->addPointCloud<pcl::PointXYZRGBNormal>(texturedCloud, rgb, "cloud");
 
     // Add mesh
     viewer->setBackgroundColor(1, 1, 1);
     viewer->addPolygonMesh(triangles, "meshes", 0);
-    viewer->addCoordinateSystem(1.0);
+    // viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
     viewer->setCameraPosition(0.3,0.3,-1,0.3,0.3,0.1,0,-1,0);
-
+    usleep(15000000);
+    viewer->setCameraPosition(-1.1,0.3,0.1,0.3,0.3,0.1,0,-1,0);
+    usleep(15000000);
+    viewer->setCameraPosition(0.25,0.3,1.5,0.3,0.3,0.1,0,-1,0);
+    usleep(15000000);
+    viewer->setCameraPosition(0.6,-0.6,-0.5,0.3,0.3,0.1,0,-1,0);
     // Keep viewer open
     while (!viewer->wasStopped()) {
         viewer->spinOnce(100);
