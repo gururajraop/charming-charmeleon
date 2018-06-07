@@ -147,12 +147,12 @@ bool checkPointOccluded(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, pcl::Verti
     return false;
 }
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXYZRGB>::Ptr source,
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr destination,
-		pcl::Vertices polygon, Frame3D frame) {
+void colorPolygon(pcl::PointCloud<pcl::PointXYZRGB> &source,
+		  pcl::PointCloud<pcl::PointXYZRGB> &destination,
+		  pcl::Vertices polygon, Frame3D frame) {
     pcl::PointXYZRGB point = pcl::PointXYZRGB();
     for (size_t i=0; i<polygon.vertices.size(); ++i) {
-	point = source->points[polygon.vertices[i]];
+	point = source.points[polygon.vertices[i]];
 
 	// Get the image size and focal length from the frame
 	int height = frame.depth_image_.size().height;
@@ -160,8 +160,8 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXY
 	float focalLength = frame.focal_length_;
 
 	// Caclulate the UV coordinates
-	float U = (focalLength * point.x / point.z) + width;
-	float V = (focalLength * point.y / point.z) + height;
+	float U = (focalLength * point.x / point.z) + (width / 2);
+	float V = (focalLength * point.y / point.z) + (height / 2);
 
 	// Normalize them to unit size using the image size
 	U = U / width;
@@ -176,13 +176,11 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXY
 	    cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
 
 	    // Assign the color to cloud point
-	    destination->points[polygon.vertices[i]].r = rgb[2];
-	    destination->points[polygon.vertices[i]].g = rgb[1];
-	    destination->points[polygon.vertices[i]].b = rgb[0];
+	    destination.points[polygon.vertices[i]].r = rgb[2];
+	    destination.points[polygon.vertices[i]].g = rgb[1];
+	    destination.points[polygon.vertices[i]].b = rgb[0];
 	}
     }
-
-    return destination;
 }
 
 pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame3D frames[], pcl::PolygonMesh mesh) {
@@ -208,7 +206,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
 	for(size_t i=0; i<polygons.size(); ++i) {
 	    if(!checkPointOccluded(transformedPointCloud, polygons[i])) {
 		// Color the visible polygons
-		pointCloud = colorPolygon(transformedPointCloud, pointCloud, polygons[i], frame);
+		colorPolygon(*transformedPointCloud, *pointCloud, polygons[i], frame);
 	    }
 	}
 
