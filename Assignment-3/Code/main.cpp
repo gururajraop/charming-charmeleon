@@ -173,6 +173,7 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPointCloud(pcl::PointCloud<pcl::Poin
 
 	// Extract the RGB values from the rgb images at position UV coordinates
 	if (U > 0 && U < 1 && V > 0 && V < 1) {
+	    // Extract the RGB values from the figure using UV coordinates
 	    cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
 
 	    // Assign the color to cloud point
@@ -180,6 +181,8 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPointCloud(pcl::PointCloud<pcl::Poin
 	    point.g = rgb[1];
 	    point.b = rgb[0];
 	}
+
+	// Assign the color values to the color cloud
 	coloredCloud->push_back(point);
     }
 
@@ -211,6 +214,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
 	// Color the point cloud
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorCloud = colorPointCloud(pointCloud, frame);
 
+	// Merge the colored cloud and transformed normals. Also converts the point clouds to PointXYZRGBNormal type
 	pcl::concatenateFields(*colorCloud, *transformedPCNormals, *transformedCloud);
 
 	// Concat the point clouds
@@ -245,10 +249,12 @@ pcl::PolygonMesh transferColor2Mesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr
 	for (size_t j=0; j<polygons[i].vertices.size(); ++j) {
 	    pcl::PointXYZRGBNormal &point = pointCloud->points[polygons[i].vertices[j]];
 
+	    // Get the nearest points in the polygon mesh
 	    std::vector<int> indices;
             std::vector<float> distances;
             mappingTree->nearestKSearch(point, 1, indices, distances);
 
+	    // Get the closest point from the texturedCloud and assign itś RGB values
 	    pcl::PointXYZRGBNormal& texturedPoint = texturedCloud->points[indices[0]];
 	    if(texturedPoint.r != 0 && texturedPoint.g != 0 && texturedPoint.b != 0) {
                 point.r = texturedPoint.r;
@@ -259,6 +265,7 @@ pcl::PolygonMesh transferColor2Mesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr
 	}}
     }
 
+    // Update the mesh cloud values with colored point cloud
     pcl::toPCLPointCloud2(*pointCloud, mesh.cloud);
 
     return mesh;
@@ -369,6 +376,8 @@ int main(int argc, char *argv[]) {
     viewer->addPolygonMesh(triangles, "meshes", 0);
     // viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
+    viewer->setCameraPosition(0.3,0.3,-1,0.3,0.3,0.1,0,-1,0);
+    usleep(15000000);
     viewer->setCameraPosition(0.3,0.3,-1,0.3,0.3,0.1,0,-1,0);
     usleep(15000000);
     viewer->setCameraPosition(-1.1,0.3,0.1,0.3,0.3,0.1,0,-1,0);
