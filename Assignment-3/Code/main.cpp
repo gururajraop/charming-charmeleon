@@ -237,10 +237,10 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
             {
 	    // Create the poisson object and set the parameters 
             pcl::Poisson<pcl::PointNormal> poisson;
-            poisson.setDepth(10);
+            poisson.setDepth(8);
 	    // poisson.setSolverDivide(8);
 	    // poisson.setIsoDivide(8);
-	    // poisson.setPointWeight(4.0f);
+	    poisson.setSamplesPerNode(1.0f);
             poisson.setInputCloud(pointCloudNormal);
 
 	    // Reconstruct the mesh using the provided point clouds
