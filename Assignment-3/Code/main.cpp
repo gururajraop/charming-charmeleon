@@ -147,12 +147,12 @@ bool checkPointOccluded(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, pcl::Verti
     return false;
 }
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXYZRGB>::Ptr source,
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr destination,
-		pcl::Vertices polygon, Frame3D frame) {
+void colorPolygon(pcl::PointCloud<pcl::PointXYZRGB> &source,
+		  pcl::PointCloud<pcl::PointXYZRGB> &destination,
+		  pcl::Vertices polygon, Frame3D frame) {
     pcl::PointXYZRGB point = pcl::PointXYZRGB();
     for (size_t i=0; i<polygon.vertices.size(); ++i) {
-	point = source->points[polygon.vertices[i]];
+	point = source.points[polygon.vertices[i]];
 
 	// Get the image size and focal length from the frame
 	int height = frame.depth_image_.size().height;
@@ -160,8 +160,8 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXY
 	float focalLength = frame.focal_length_;
 
 	// Caclulate the UV coordinates
-	float U = (focalLength * point.x / point.z) + width;
-	float V = (focalLength * point.y / point.z) + height;
+	float U = (focalLength * point.x / point.z) + (width / 2);
+	float V = (focalLength * point.y / point.z) + (height / 2);
 
 	// Normalize them to unit size using the image size
 	U = U / width;
@@ -172,15 +172,15 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr colorPolygon(pcl::PointCloud<pcl::PointXY
 	int V_coor = std::floor(frame.rgb_image_.rows * V);
 
 	// Extract the RGB values from the rgb images at position UV coordinates
-	cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
+	if (U > 0 && U < 1 && V > 0 && V < 1) {
+	    cv::Vec3b rgb = frame.rgb_image_.at<cv::Vec3b>(V_coor,U_coor);
 
-	// Assign the color to cloud point
-	destination->points[polygon.vertices[i]].r = rgb[2];
-	destination->points[polygon.vertices[i]].g = rgb[1];
-	destination->points[polygon.vertices[i]].b = rgb[0];
+	    // Assign the color to cloud point
+	    destination.points[polygon.vertices[i]].r = rgb[2];
+	    destination.points[polygon.vertices[i]].g = rgb[1];
+	    destination.points[polygon.vertices[i]].b = rgb[0];
+	}
     }
-
-    return destination;
 }
 
 pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame3D frames[], pcl::PolygonMesh mesh) {
@@ -206,7 +206,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointCloudsWithTexture(Frame
 	for(size_t i=0; i<polygons.size(); ++i) {
 	    if(!checkPointOccluded(transformedPointCloud, polygons[i])) {
 		// Color the visible polygons
-		pointCloud = colorPolygon(transformedPointCloud, pointCloud, polygons[i], frame);
+		colorPolygon(*transformedPointCloud, *pointCloud, polygons[i], frame);
 	    }
 	}
 
@@ -233,21 +233,22 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
     pcl::copyPointCloud(*pointCloud, *pointCloudNormal);
 
     switch (method) {
-        case PoissonSurfaceReconstruction:
-            {
+        case PoissonSurfaceReconstruction: {
 	    // Create the poisson object and set the parameters 
             pcl::Poisson<pcl::PointNormal> poisson;
-            poisson.setDepth(8);
-	    // poisson.setSolverDivide(8);
-	    // poisson.setIsoDivide(8);
-	    poisson.setSamplesPerNode(1.0f);
+            
+	    // High depth for high resolution
+	    poisson.setDepth(10);
+
+	    // Smooth noise by using more samples per octree node
+	    poisson.setSamplesPerNode(20.0f);
             poisson.setInputCloud(pointCloudNormal);
 
 	    // Reconstruct the mesh using the provided point clouds
             poisson.reconstruct(triangles);
             break;
-	    }
-        case MarchingCubes:                              
+	}
+        case MarchingCubes: {
             pcl::MarchingCubesHoppe<pcl::PointNormal> mc;
 	    mc.setInputCloud(pointCloudNormal);
 
@@ -255,6 +256,7 @@ pcl::PolygonMesh createMesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr pointCl
             mc.setGridResolution(100, 100, 100);
             mc.reconstruct(triangles);
             break;
+	}
     }
     return triangles;
 }
@@ -295,6 +297,7 @@ int main(int argc, char *argv[]) {
         // Create one point cloud by merging all frames with texture using
         // the rgb images from the frames
         texturedCloud = mergingPointCloudsWithTexture(frames, triangles);
+	pcl::toPCLPointCloud2(*texturedCloud, triangles.cloud);
     } else {
 	std::cout<<"Merging point clouds without texture support"<<std::endl;
         // SECTION 3: 3D Meshing & Watertighting
