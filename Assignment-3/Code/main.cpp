@@ -295,6 +295,7 @@ int main(int argc, char *argv[]) {
         // Create one point cloud by merging all frames with texture using
         // the rgb images from the frames
         texturedCloud = mergingPointCloudsWithTexture(frames, triangles);
+	pcl::toPCLPointCloud2(*texturedCloud, triangles.cloud);
     } else {
 	std::cout<<"Merging point clouds without texture support"<<std::endl;
         // SECTION 3: 3D Meshing & Watertighting
