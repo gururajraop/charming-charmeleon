@@ -18,10 +18,13 @@ make -j4
 ```
 This should generate the "final" excutable in the build folder.
 
+#### Execution
 To run the application
 ```
 ./final <path_to_3DFrames> <meshing_alogorithm_type> <texture_type>
 ```
 
-For meshing algorith types, enter 0 for Poisson and 1 for Marching Cubes
-For texture support type t, and f for no texture support
+Meshing algorith types: 0 = Poisson and 1 = Marching Cubes.
+
+
+Texture/Coloring support: t = with texture, f = without texture
