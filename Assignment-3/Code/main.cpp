@@ -124,13 +124,13 @@ pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr mergingPointClouds(Frame3D frames[]
     return modelCloud;
 }
 
-bool checkPointOccluded(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, pcl::Vertices polygon) {
+bool checkPointOccluded(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud, pcl::Vertices polygon) {
     pcl::PointXYZ pointXYZ = pcl::PointXYZ();
 
     // Create an OCTree and texture mapping to check the polygon visibility
     const double resolution = 0.05f;
-    pcl::octree::OctreePointCloudSearch<pcl::PointXYZRGB>::Ptr ocTree(new pcl::octree::OctreePointCloudSearch<pcl::PointXYZRGB>(resolution));
-    pcl::TextureMapping<pcl::PointXYZRGB> textureMapping;
+    pcl::octree::OctreePointCloudSearch<pcl::PointXYZRGBNormal>::Ptr ocTree(new pcl::octree::OctreePointCloudSearch<pcl::PointXYZRGBNormal>(resolution));
+    pcl::TextureMapping<pcl::PointXYZRGBNormal> textureMapping;
 
     // Check the point of every vertex for visibility wrt the camera/cloud
     for (size_t i=0; i< polygon.vertices.size(); ++i) {
@@ -239,6 +239,9 @@ pcl::PolygonMesh transferColor2Mesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr
     //pcl::PointXYZRGBNormal &point = pcl::PointXYZRGBNormal();
 
     for(size_t i=0; i<polygons.size(); ++i) {
+	// Check if the polygon is visible
+	if(!checkPointOccluded(pointCloud, polygons[i])) {
+	// Transfer the color for visible polygons
 	for (size_t j=0; j<polygons[i].vertices.size(); ++j) {
 	    pcl::PointXYZRGBNormal &point = pointCloud->points[polygons[i].vertices[j]];
 
@@ -253,7 +256,7 @@ pcl::PolygonMesh transferColor2Mesh(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr
                 point.b = texturedPoint.b;
             }
 
-	}
+	}}
     }
 
     pcl::toPCLPointCloud2(*pointCloud, mesh.cloud);
